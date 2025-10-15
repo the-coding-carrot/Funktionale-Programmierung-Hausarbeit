@@ -4,11 +4,15 @@
   header: align(right)[
     #pad(
       image("images/DHBW-Logo.svg"),
-      top: 1cm
+      top: 1cm,
     )
     #line(length: 100%)
-  ]
+  ],
 )
 #show heading: set block(below: 1em)
 
-#include "content.typ"
+#include "intro.typ"
+#pagebreak()
+#include "side-effects.typ"
+#pagebreak()
+#include "fp.typ"
