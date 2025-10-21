@@ -24,7 +24,7 @@ fetch("/api/some-data").then(processData)
 
 === Lambda Ausdrücke
 (todo: citations)
-Ein Lambda Ausdruck, auch bekannt als Anonyme Funktion, ist eine Funktion die definiert ist, aber keinen Namen trägt. Lambda Ausdrücke werden häufig verwendet um Callbacks zu definieren, ohne den Code unübersichtlicher zu machen. Das Beispiel aus Listing  (\@Maxim wie mach ich Listings KI kann typst nicht und google ist ass) Kann mit einer anonymen Funktion anstelle der Funktion `processData` folgendermaßen geschrieben werden:
+Ein Lambda Ausdruck, auch bekannt als Anonyme Funktion, ist eine Funktion die definiert ist, aber keinen Namen trägt. Lambda Ausdrücke werden häufig verwendet um Callbacks zu definieren, ohne den Code unübersichtlicher zu machen. Das Beispiel aus Listing  (\@Maxim wie mach ich Listings KI kann typst nicht und google ist ass. Da muss man irgendein Paket runterladen oder so, ich mach das mal gleich, ich hab gerade Hunger und bin in einer Stunde wieder da) Kann mit einer anonymen Funktion anstelle der Funktion `processData` folgendermaßen geschrieben werden:
 
 ```JavaScript
 fetch("/api/some-data").then((object) => {
