@@ -7,6 +7,7 @@
   - Etwas in eine Datei schreiben oder Console stuff
   - Netzwerkverbindung aufbauen
 - FP minimiert Side Effects oder trennt sie klar vom Rest des Codes #sym.arrow.r `Pure Functions`
+#todo[EXPLIZIT darauf eingehen was die Nachteile davon sind mit Beispielen etc.]
 == Transparenz
 #todo[man muss halt iwi interne Implementierung kennen weil SE nicht klar aldf
 
