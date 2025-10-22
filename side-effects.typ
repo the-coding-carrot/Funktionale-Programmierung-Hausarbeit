@@ -11,11 +11,11 @@
 == Transparenz
 #todo[man muss halt iwi interne Implementierung kennen weil SE nicht klar aldf
 
-(wir müssen es schaffen nen convincing case vs. OOP zu machen)]
+  (wir müssen es schaffen nen convincing case vs. OOP zu machen)]
 - #strong[FP:] Funktionen können isoliert betrachtet und verstanden werden
 - #strong[OOP:] Man muss die gesamte Klasse und ihren aktuellen Zustand verstehen, um eine einzige Methode zu verstehen
 - #emph[OOP] macht $f(x)$, während #emph[FP] $f(5)$ macht, man sieht also direkt was #emph[FP] macht (solange man keine kryptischen Namen benutzt)
-- #strong[WICHTIG:] komplett ohne #emph[Side Effects] kommt man nicht aus, weil irgendwann muss das Programm irgendeinen Zustand ändern damit es sinnvoll ist
+- #strong[WICHTIG:] komplett ohne #emph[Side Effects] kommt man nicht aus, weil irgendwann muss das Programm irgendeinen Zustand ändern damit es sinnvoll ist #todo[Drauf eingehen, dass man das an den Rand verlagern kann (Beispiel: Datenbank für auslagern von state)]
 
 == Concurrency
 #todo[global mutable Variablen sind halt scheiße für multithreading nh]
@@ -23,8 +23,8 @@
 - #emph[Shared Mutable State] ist Endgegner von Multithreading
 - Beispiel: Bankautomat
   - Konto hat 100 Rubel
-  - Thread 1 hebt 50 Euro ab 
-  - Thread 2 hebt 50 Drachmen ab 
+  - Thread 1 hebt 50 Euro ab
+  - Thread 2 hebt 50 Drachmen ab
   - Beide lesen 100, ziehen 50 ab, beide schreiben 50 rein
   - Konto hat nach abziehen von $50+50=100$ immer noch 50
 - In #emph[OOP] muss man das mit #emph[Locks] verhindern
