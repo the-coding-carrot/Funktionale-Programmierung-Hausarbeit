@@ -8,6 +8,29 @@
   - Netzwerkverbindung aufbauen
 - FP minimiert Side Effects oder trennt sie klar vom Rest des Codes #sym.arrow.r `Pure Functions`
 #todo[EXPLIZIT darauf eingehen was die Nachteile davon sind mit Beispielen etc.]
+
+#emph[Side Effects] sind alle Dinge die eine Funktion macht, die nicht Teil ihres Outputs sind. Das Ändern von globalen Variablen, das Modifizieren von Objekten, das Schreiben in Dateien oder das Aufbauen von Netzwerkverbindungen sind alles Beispiele für Side Effects. Der Nachteil von Side Effects ist, dass sie den Zustand des Programms verändern können, was zu unerwartetem Verhalten führen kann. Dies erschwert das Testen und Debuggen von Code, da die Funktion nicht mehr isoliert betrachtet werden kann. Außerdem leidet die Transparenz des Codes, da der Leser nicht sofort erkennen kann, welche Teile des Codes den Zustand verändern. Der Leser muss den gesamten Kontext verstehen, um die Auswirkungen einer Funktion vollständig zu begreifen. Ein Beispiel für Side Effects ist eine Funktion, die eine globale Variable ändert:
+
+```python
+counter = 0
+def increment():
+    global counter
+    counter += 1
+increment()
+print(counter)  # Ausgabe: 1
+```
+
+Funktionale Programmierung hingegen strebt danach, Side Effects zu minimieren oder klar vom Rest des Codes zu trennen, um die Vorteile reiner Funktionen zu nutzen. #emph[Pure Functions] sind Funktionen, die für dieselben Eingaben immer dieselben Ausgaben liefern und keine Side Effects haben. Dies erleichtert das Verständnis, Testen und die Wiederverwendbarkeit von Code erheblich. Ein Beispiel für eine reine Funktion ist:
+
+```python
+def increment(x):
+    return x + 1
+
+counter = increment(0)
+print(counter)  # Ausgabe: 1
+```
+In diesem Beispiel hat die Funktion `increment` keine Side Effects, da sie nur den Wert ihrer Eingabe um 1 erhöht, ohne den Zustand des Programms zu verändern. Außerdem erkennt man sofort, dass `increment(0)` immer `1` zurückgibt, unabhängig vom Kontext.
+
 == Transparenz
 #todo[man muss halt iwi interne Implementierung kennen weil SE nicht klar aldf
 
