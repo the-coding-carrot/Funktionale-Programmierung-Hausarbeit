@@ -1,13 +1,7 @@
 #import "util.typ": *
 
 = Side Effects
-- Ein Side Effect ist alles was eine Funktion macht, außer einfach einen Wert zurückzugeben
-  - Globale Variable ändern
-  - Internen Zustand eines Objekts ändern (OOP stuff)
-  - Etwas in eine Datei schreiben oder Console stuff
-  - Netzwerkverbindung aufbauen
-- FP minimiert Side Effects oder trennt sie klar vom Rest des Codes #sym.arrow.r `Pure Functions`
-#todo[EXPLIZIT darauf eingehen was die Nachteile davon sind mit Beispielen etc.]
+#todo[Sieht irgendwie nach zu wenig Text aus]
 
 #emph[Side Effects] sind alle Dinge die eine Funktion macht, die nicht Teil ihres Outputs sind. Das Ändern von globalen Variablen, das Modifizieren von Objekten, das Schreiben in Dateien oder das Aufbauen von Netzwerkverbindungen sind alles Beispiele für Side Effects. Der Nachteil von Side Effects ist, dass sie den Zustand des Programms verändern können, was zu unerwartetem Verhalten führen kann. Dies erschwert das Testen und Debuggen von Code, da die Funktion nicht mehr isoliert betrachtet werden kann. Außerdem leidet die Transparenz des Codes, da der Leser nicht sofort erkennen kann, welche Teile des Codes den Zustand verändern. Der Leser muss den gesamten Kontext verstehen, um die Auswirkungen einer Funktion vollständig zu begreifen. Ein Beispiel für Side Effects ist eine Funktion, die eine globale Variable ändert:
 
@@ -41,22 +35,52 @@ In diesem Beispiel hat die Funktion `increment` keine Side Effects, da sie nur d
 - #strong[WICHTIG:] komplett ohne #emph[Side Effects] kommt man nicht aus, weil irgendwann muss das Programm irgendeinen Zustand ändern damit es sinnvoll ist #todo[Drauf eingehen, dass man das an den Rand verlagern kann (Beispiel: Datenbank für auslagern von state)]
 
 == Concurrency
-#todo[global mutable Variablen sind halt scheiße für multithreading nh]
+#todo[Maybe Beispiele hinzufügen?]
 
-- #emph[Shared Mutable State] ist Endgegner von Multithreading
-- Beispiel: Bankautomat
-  - Konto hat 100 Rubel
-  - Thread 1 hebt 50 Euro ab
-  - Thread 2 hebt 50 Drachmen ab
-  - Beide lesen 100, ziehen 50 ab, beide schreiben 50 rein
-  - Konto hat nach abziehen von $50+50=100$ immer noch 50
-- In #emph[OOP] muss man das mit #emph[Locks] verhindern
-- Thread 1 muss Transaktion erst abschließen und Thread 2 muss warten
-- Führt oft zu #emph[Deadlocks]
-#strong[FP-Lösung:]
+#todo[Under construction, die Beispiele werden noch angepasst und an die richtige Stelle gepackt]
+```python
+from threading import Thread
+N = 100_000
 
-Thread 1 und 2 möchten wieder von einem Account jeweils 50 abheben.
-- `withdraw`-Funktion ist #emph[rein] und der Account ist #emph[immutable]
-- Thread 1 bekommt ein neues Objekt vom Account
-- Thread 2 bekommt ein neues Objekt vom Account
-- Threads konkurrieren nicht mehr und beschreiben nicht denselben Speicher
+class Acc:
+    def __init__(self):
+        self.sum = 0  # geteilter, veränderlicher Zustand
+
+    def add(self, v):
+        # ohne Lock: race-conditions möglich
+        self.sum += v
+
+def worker(acc, items):
+    for i in items:
+        acc.add(i * i)
+
+if __name__ == "__main__":
+    acc = Acc()
+    items = list(range(N))
+    half = len(items) // 2
+    t1 = Thread(target=worker, args=(acc, items[:half]))
+    t2 = Thread(target=worker, args=(acc, items[half:]))
+    t1.start(); t2.start()
+    t1.join(); t2.join()
+    print("OOP (ohne Lock) -> sum =", acc.sum)
+    # Erwartet: N*(N-1)*(2N-1)/6; ohne Lock meist kleiner/falsch
+```
+
+Bla Bla
+
+```python 
+from concurrent.futures import ThreadPoolExecutor
+N = 100_000
+
+def square(x):
+    return x * x  # reine Funktion, keine Seiteneffekte
+
+if __name__ == "__main__":
+    items = list(range(N))
+    with ThreadPoolExecutor(max_workers=4) as ex:
+        results = list(ex.map(square, items))  # map-ähnliche FP-Semantik
+    total = sum(results)  # Aggregation erfolgt danach (im Hauptthread)
+    print("FP (no shared mutation) -> sum =", total)
+```
+
+Unter #emph[Concurrency] versteht man die Fähigkeit eines Programms, mehrere Aufgaben gleichzeitig auszuführen. Ein Problem im #emph[OOP] ist der Umgang mit #emph[Shared Mutable State], also mit gemeinsam genutztem, veränderbarem Zustand. Wenn mehrere Threads gleichzeitig auf denselben Zustand zugreifen und diesen ändern, kann es zu Inkonsistenzen kommen. Das führt zu unerwartetem Verhalten, da die Threads sich gegenseitig beeinflussen. In #emph[OOP] wird dieses Problem mit #emph[Locks] gelöst, die sicherstellen, dass nur ein Thread gleichzeitig auf den Zustand zugreifen kann. Dies kann jedoch zu #emph[Deadlocks] führen, bei denen zwei oder mehr Threads sich gegenseitig blockieren und nicht weiterarbeiten können. In der #emph[funktionalen Programmierung] hingegen sind Daten #emph[immutable]. Ein Thread in der #emph[funktionalen Programmierung] bekommt also keinen globalen Zustand, den er ändern kann, sondern eine Kopie des Zustands. Wenn ein Thread eine Änderung vornehmen möchte, dann erstellt er eine neue Version des Zustands, anstatt den ursprünglichen Zustand zu ändern. Damit können Threads nicht mehr konkurrieren und sich gegenseitig beeinflussen. In der #emph[funktionalen Programmierung] wird das Problem der #emph[Concurrency] also vermieden indem es keine gemeinsamen Zustände gibt.
