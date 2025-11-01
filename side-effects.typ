@@ -68,7 +68,7 @@ if __name__ == "__main__":
 
 Bla Bla
 
-```python 
+```python
 from concurrent.futures import ThreadPoolExecutor
 N = 100_000
 

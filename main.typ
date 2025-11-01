@@ -8,6 +8,7 @@
     )
     #line(length: 100%)
   ],
+  numbering: "1",
 )
 #show heading: set block(below: 1em)
 
