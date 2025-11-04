@@ -1,142 +1,61 @@
 #import "util.typ": *
 
 = Fundamentale Konzepte des FP
+== (es wäre schon witzig über Kategorien, Funktorialität und Monoiden zu yappen)
+== Notation
+ja erkläre halt generic types und `a -> b` notation für Funktionen
 == Pure Functions
 == Higher-Order Functions
+== Anonymous Functions
+- python's lambda notation einführen
 == Monaden
-Das Pattern der Monade ist der Weg, wie mit Seiteffekten umgegangen werden kann, ohne den pur-funktionalen Bereich zu verlassen. Das Konzept der Monaden steckt tief im mathematischen Feld der Kategorientheorie#footnote[Diese inhärente Komplexität kann gut aufgezeigt werden durch eine sarkastische Definition der Monade als ein "Monoid in der Kategorie der Endofunktoren".]. Diese theoretischen Grundlagen zu Genüge einzuführen sprenkt den Rahmen dieser Ausarbeitung, weshalb wir Monaden stattdessen anhand eines prominenten Beispiels exemplarisch motivieren wollen: Der sogenannten "Writer-Monade".
+Das Pattern der Monade ist der Weg, wie deterministisch mit Seiteneffekten umgegangen werden kann. Monaden an sich sind ein Konzept aus der Kategorientheorie und entsprechend tief theoretisch verwurzelt. Wir wollen Monaden aber nur aus der Perspektive eines Software-Engineers betrachten, und werden deshalb theoretische Grundlagen auslassen. (unless we don't still gotta decide)
 
-Die Writer-Monade löst das Problem der Log-Aggregation. Logging ist ein essenzieller Bestandteil vieler Enterprise Applications. In der Realität wird hier mit I/O Streams gearbeitet, um Logs nach `stdout` oder in eine Datei zu schreiben; der Einfachkeit halber werden wir dies abstrahieren und durch einen global mutierbaren String modellieren.
-In diesem simplen Beispiel ist die aufgabe der Funktion `add_2`, die Zahl zwei auf ihre Eingabe zu addieren. Dies ist an sich eine pure Operation, allerdings mutiert die Funktion den globalen `logger` State.
+Eine Monade kann definiert werden als ein Parameterisierter Datentyp `M<T>`, der Methoden mit den Folgenen Signaturen bereitstellt /*@notions_computations*/:
++ `unit: T -> M<T>`
++ `bind: (M<A>, A -> M<B>) -> M<B>`
 
-```rust
-thread_local! {
-    pub static logger: RefCell<String> = RefCell::new(String::from(""));
-}
+Damit `M` tatsächlich eine Monade ist, muss `unit` als Neutrales Element bezüglich der `bind` Operation agieren, und die Operation `bind` assoziativ sein/*@monad_intro_medium*/.
 
-pub fn add_2(i: i32) -> bool {
-    logger.with(|ref_cell| {
-        *ref_cell.borrow_mut() += "Added two; ";
-    });
-    i + 2
-}
+Die Rolle der Methoden `unit` und `bind` können gut anhand des Beispiels der sogenannten "Maybe Monade" demonstriert werden. Diese abstrahiert den Side-Effect der möglichen Nicht-Existenz des enkapsulierten Wertes. Folgendes ist eine beispielhafte Implementierung der Maybe Monade in Python #footnote("Anzumerken ist, dass sich die Mächtigkeit der Struktur besser aufzeigen ließe in einer Sprache, die Algebraische Summentypen unterstützt. Da Python dies nicht tut, nutzt unsere Implementierung weiterhin das prozedurelle null-pattern (`None`) zur Repräsentation eines nicht existierenden Wertes."):
+
+```py
+T, S = TypeVar("T"), TypeVar("S")
+class Maybe(Generic[T]):
+    value: T
+
+    def __init__(self, value: T):
+        self.value = value
+
+    @classmethod
+    def unit(cls, value: T) -> "Maybe[T]":
+        return cls(value)
+
+    def bind(self, f: Callable[[T], "Maybe[S]"]) -> "Maybe[S]":
+        if self.value is None:
+            return Maybe(None)
+        return f(self.value)
 ```
-#todo[Von Rust nach Java migrieren]
+Diese Klasse implementiert beide Methoden einer Monade. Die Implementierung von `bind` als Methode eines Objektes ermöglicht die Nutzung der Maybe Monade durch das aneinander-ketten von `bind` aufrufen wie folgt:
 
-Der Grundgedanke der Monade ist es, die Datentypen einer Funktion zu "wrappen", sodass die Mutation des States aus der Funktion zurückgegeben werden kann. So kann der State durch das ganze Programm kaskadieren. Die Writer Monade wrapped einen generischen Typ mit einem String, der den State des Loggers mit sich trägt:
-
-```rs
-struct Writer<T> {
-    data: T,
-    log: String,
-}
+```py
+val = 4
+result = Maybe.unit(val)
+    .bind(lambda x: Maybe(x - 2))
+    .bind(lambda x: Maybe(str(x)))
+assert(result.value == "2")
 ```
+Diese Kette an Operationen verändert erst einen Integer, und konvertiert ihn dann in einen String. Diese Aufgabe ist trvial genug, dass auch ein rein prozedureller Ansatz ohne unvorhergesehene Fehler durchlaufen könnte. Dies ändert sich allerdings, wenn man die Aufgabe umdreht: Es soll zuerst ein String von stdout eingelesen werden, dann in einen Integer konvertiert und schlussendlich verarbeitet werden.
 
-Die Funktion `add_2` kann nun ihre Mutation als neue Instanz des `Writer<i32>` returnen:
-
-```rs
-fn add_2(i: i32) -> Writer<i32> {
-    Writer {
-        data: i + 2,
-        log: "Added two; ".to_owned(),
-    }
-}
+```py
+result = Maybe.unit(input(""))
+    .bind(lambda s: Maybe(int(s) if s.isdigit() else Maybe(None)))
+    .bind(lambda x: x - 2)
 ```
-
-Um zwei solcher Funktionen zu komposieren, sprich, den Seiteneffek tatsächlich auszuführen, muss noch eine weitere Funktion definiert werden: `compose`. Diese Funktion nimmt als Argument zwei Funktionen  $"left" : A --> "Writer<B>"$ und
-$"right" : B --> "Writer<C>"$, und komposiert diese zu einer Funktion $"right" circle.small "left": A --> "Writer<C>"$:
-
-```rs
-pub fn compose<A, B, C>(
-    left: fn(A) -> Writer<B>,
-    right: fn(B) -> Writer<C>,
-) -> impl Fn(A) -> Writer<C>
-{
-    move |a: A| {
-        let res_left = left(a);
-        let res_right = right(res_left.data);
-        Writer {
-            data: res_right.data,
-            log: res_left.effect + &res_right.effect, // Konkatenation der Side effects
-        }
-    }
-}
-```
-
-Diese Funktion `compose` ermöglicht es uns, eine neue Funktion einfach zu definieren, und mit anderen Funktionen zu verketten. Beispielsweise können wir eine weitere Funktion definieren, die ihre Eingabe quadriert. Diese kann einfach in das existierende `Writer` Ökosystem integriert werden:
-
-```rs
-pub fn square(i: i32) -> Writer<i32> {
-    Writer {
-      data: i * i,
-      log: "Squared; ".to_owned()
-    }
-}
-```
-
-Die Mächtigkeit der `compose` Funktion zeigt sich, wenn wir nun eine Funktion `square_and_add` bauen wollen, die ihren Parameter zuerst quadriert, und dann zwei addiert. Da wir beide dieser Funktionen bereits definiert haben, können wir `square_and_add` einfach als die Komposition dieser beiden Funktionen definieren:
-
-```rs
-let square_and_add: impl Fn(i32) -> Writer<i32> = compose(square, add);
-// demonstrate that the thing actually works
-let result: Writer<i32> = square_and_add(3);
-assert_eq(result.data, 11);
-assert_eq(result.log, "Squared; Added two; ")
-```
+Gibt der Nutzer eine valide Zahl ein (dies wird überprüft durch Pythons eingebaute Funktion `str.isdigit`), enthält `result.value` das korrekte Ergebnis als Integer. Tut der Nutzer dies allerdings nicht, ist der Wert von `result.value` `None`. In diesem Fall könnte man beispielsweise dem Benutzer eine Fehlermeldung anzeigen. Die hier gezeigte Implementierung ist der Übersichtlichkeit halber primitiv gehalten - in einer tatsächlichen Codebase sollte die Klasse weitere API Methoden enthalten, um Entwicklern eine sinnvolle Nutzung der `Maybe` Klasse mit semantischer Relevanz zu ermöglichen.
 
 
+== Monaden in der Praxis
+Monadische Strukturen finden sich in beinahe allen modernen Programmiersprachen (außer halt Python lol). Die Maybe Monade beispielsweise manifestiert sich in Java als die Klasse `Optional`, und in Rust als der `Option` Datentyp. Ein weiteres Prominentes beispiel ist die sogenannte "IO Monade", die in JavaScript als die Klasse `Promise`, und in Java und Rust als Klasse bzw. der Datentyp `Future` realisiert ist. Die IO Monade enkapsuliert den Side-Effekt, dass ein Wert möglicherweise erst in der Zukunft existiert. Sie findet häufig Anwendung in Web Applikationen, wo Daten über ein Netzwerk geladen werden müssen.
 
-= FP in der Praxis
-Es gibt Haskell und Scala und so (todo: Footnotes). Krass. Solch rein funktionale Sprachen sind in der Industrie allerdings seltenst anzutreffen. (todo: besser begründen & citations). Ein zentraler Grund ist, dass die Ideologie von vollständig zustandslosen Programmen in der Realität oftmals schwer umzusetzen ist. Software, die realen Nutzen bringt, muss beinahe zwangsläufig Zustände mutieren.
-
-Ein sinnvoller Kompromiss zwischen herkömmlichen Paradigmen wie OOP oder Prozedureller Programmierung ist es deswegen, die elementaren Seiteneffekte an die Randschnittstellen der Software zu verlagern (z.B. an eine Schnittstelle zur Kommunikation mit einer Datenbank), wo sie benötigt werden. Der Rest des Programms kann dann in einer pur-funktionalen Art und weise geschrieben werden, was die vorher etablierten Vorteile der Funktionalen Programmierung mit sich bringt.
-
-== In etablierten Sprachen
-Viele etablierte Programmiersprachen haben in den vergangenen Jahren Elemente aus pur-funktionalen Sprachen wie Haskell oder Scala übernommen. In dieser Sektion werden wir die prominentesten davon vorstellen.
-
-=== Callbacks
-Beispiel: JavaScript Promises  mit `.then`
-Ja irgendwie auf HOFs beziehen
-
-```JavaScript
-function processData(object) {
-  console.log(object);
-}
-fetch("/api/some-data").then(processData)
-``` <js_promise>
-
-=== Lambda Ausdrücke
-(todo: citations)
-Ein Lambda Ausdruck, auch bekannt als Anonyme Funktion, ist eine Funktion die definiert ist, aber keinen Namen trägt. Lambda Ausdrücke werden häufig verwendet um Callbacks zu definieren, ohne den Code unübersichtlicher zu machen. Das Beispiel aus Listing  (\@Maxim wie mach ich Listings KI kann typst nicht und google ist ass. Da muss man irgendein Paket runterladen oder so, ich mach das mal gleich, ich hab gerade Hunger und bin in einer Stunde wieder da) Kann mit einer anonymen Funktion anstelle der Funktion `processData` folgendermaßen geschrieben werden:
-
-```JavaScript
-fetch("/api/some-data").then((object) => {
-  console.log(object)
-});
-```
-
-Lambda ausdrücke werden z.B. unterstützt von Java, Python, und Rust (todo: citations).
-
-(Dass man das eigentlich nicht machen sollte wegen callback hells ignorieren wir hier mal gekonnt)
-
-=== List processing
-Seit Java 8 existiert in Java die Streams API. Diese ermöglicht Operationen auf Listen/Arrays in funktionalem Stil:
-
-- Die Eingabe wird nicht mutiert - das Ergebnis einer Stream operation muss in einer neuen Liste gespeichert werden
-- Incorporation of Callbacks (ich kann keine deutschen Texte mehr schreiben nachdem ich 3 Praxisarbeiten auf englisch verfasst habe)
-- Anstatt zu spezifizieren, wie über die Liste iteriert wird, wird deklarativ gearbeitet
-
-Folgendes Beispiel (again how the fuck do I do references to listings in typst) zeigt eine Operation, die jedem Element einer Liste aus Bestellungen diejenigen selektiert, die noch nicht abgeschlossen wurden, und für jeden dieser Bestellungen zurück gibt, welche Produkte die Bestellung enthält. (todo wir brauchen ein besseres Beispiel (ich such mich mal durch meine Rust projekte))
-
-
-```Java
-List<List<Product>> getOrderingDateOf(List<Order> orders) {
-  return orders.stream()
-    .filter((Order o) -> !o.isCompleted())
-    .map((Order o) -> o.getProducts());
-}
-```
-TODO die häufigsten Operationen (filter, map, foreach etc.) kurz erklären?
-
-JavaScript liefert für Arrays eine beinahe identische API. Aucn Rusts closures bieten eine vergleichbare API. (TODDO mention python list comprehension?)
-
+Ebenfalls ein prominentes Beispiel für Monaden, die häufig Anwendung finden ist die List Monade. Sie enkapsuliert den Side-Effekt, dass dieselbe Operation auf mehreren Elementen gleichzeitig ausgeführt werden soll. Die List Monade findet sich beispielsweise in Java in Form der Streams API und in Rust in Form der Iterator API. In JavaScript ist bereits der Array Datentyp an sich eine Monade. oke keinen bock mal schauen das ding is für list monads müsste man fmap einführen wofür man die Funktorialität von Monaden definieren muss und dann muss man über das ganze theoretische Zeugs schreiben ich hasse wissenschaftliches Schreiben

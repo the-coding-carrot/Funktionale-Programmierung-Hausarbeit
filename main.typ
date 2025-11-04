@@ -22,3 +22,6 @@
 #pagebreak()
 #include "conclusion.typ"
 
+
+#bibliography("fp.bib")
+
