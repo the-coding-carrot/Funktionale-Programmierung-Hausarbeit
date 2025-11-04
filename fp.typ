@@ -5,13 +5,42 @@
 == Notation
 ja erkläre halt generic types und `a -> b` notation für Funktionen
 == Pure Functions
+äh ich glaub Maxim du führst den Begriff einfach bei Side effects ein und gut ist
 == Higher-Order Functions
-== Anonymous Functions
-- python's lambda notation einführen
-== Monaden
-Das Pattern der Monade ist der Weg, wie deterministisch mit Seiteneffekten umgegangen werden kann. Monaden an sich sind ein Konzept aus der Kategorientheorie und entsprechend tief theoretisch verwurzelt. Wir wollen Monaden aber nur aus der Perspektive eines Software-Engineers betrachten, und werden deshalb theoretische Grundlagen auslassen. (unless we don't still gotta decide)
+Als "Higher-Order Function" wird jede Funktion bezeichnet, die entweder durch eine andere Funktion parameterisiert wird, oder eine Funktion als Rückgabewert besitzt. Durch die Pythons dynamic geht dies ohne weiteres:
 
-Eine Monade kann definiert werden als ein Parameterisierter Datentyp `M<T>`, der Methoden mit den Folgenen Signaturen bereitstellt /*@notions_computations*/:
+```py
+def apply_f_to_x(x: int, f: Callable) -> int:
+  return f(x)
+```
+Dies ist ein Beispiel für den Syntax einer HoF in Python. Genutzt werden kann diese, indem man `apply_f_to_x` den Bezeichner einer anderen Funktion übergibt:
+
+```py
+def square(x: int) -> int:
+  return x ** 2
+
+assert apply_f_to_x(4, square) == 16
+```
+
+== Anonymous Functions
+#todo[wenn ich auch noch Currying erwähne dann das hier als unterkapitel zu Hofs]
+
+Besonders für kleine Funktionen, wie `square` im vorherigen Beispiel, kann es schnell verbos und unleserlich werden, jede dieser Funktionen seperat mit Namen zu initialisieren. In den meisten Sprachen gibt es deshalb einen Weg, Funktionen ohne Namen zu initialisieren, um sie direkt an Higher-Order Funktionen zu übergeben. In Python geschieht dies durch den `lambda` syntax:
+```py
+lambda arg1 [, arg2, arg3, ...]: <result>
+```
+
+Das obige Beispiel kann demnach bedeutend kompakter geschrieben werden, ohne die Funktion `square` seperat zu deklarieren:
+
+```py
+apply_f_to_x(4, lambda x: x ** 2)
+```
+
+
+== Monaden
+Das Pattern der Monade ist der Weg, wie deterministisch mit Seiteneffekten umgegangen werden kann. Monaden an sich sind ein Konzept aus der Kategorientheorie und entsprechend tief theoretisch verwurzelt. Wir wollen Monaden aber nur aus der Perspektive eines Software-Engineers betrachten, und werden deshalb theoretische Grundlagen auslassen. #todo[unless we don't still gotta decide]
+
+Eine Monade kann definiert werden als ein Parameterisierter Datentyp `M<T>`, der Methoden mit den Folgenen Signaturen bereitstellt/*@notions_computations*/:
 + `unit: T -> M<T>`
 + `bind: (M<A>, A -> M<B>) -> M<B>`
 
@@ -43,7 +72,7 @@ val = 4
 result = Maybe.unit(val)
     .bind(lambda x: Maybe(x - 2))
     .bind(lambda x: Maybe(str(x)))
-assert(result.value == "2")
+assert result.value == "2"
 ```
 Diese Kette an Operationen verändert erst einen Integer, und konvertiert ihn dann in einen String. Diese Aufgabe ist trvial genug, dass auch ein rein prozedureller Ansatz ohne unvorhergesehene Fehler durchlaufen könnte. Dies ändert sich allerdings, wenn man die Aufgabe umdreht: Es soll zuerst ein String von stdout eingelesen werden, dann in einen Integer konvertiert und schlussendlich verarbeitet werden.
 
