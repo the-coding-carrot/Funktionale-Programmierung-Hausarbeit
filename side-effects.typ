@@ -25,14 +25,16 @@ print(counter)  # Ausgabe: 1
 ```
 In diesem Beispiel hat die Funktion `increment` keine Side Effects, da sie nur den Wert ihrer Eingabe um 1 erhöht, ohne den Zustand des Programms zu verändern. Außerdem erkennt man sofort, dass `increment(0)` immer `1` zurückgibt, unabhängig vom Kontext.
 
+Jedoch kommt man in der Praxis nicht komplett ohne Side Effects aus, da Programme mit der Außenwelt interagieren müssen um einen Nutzen zu haben (z.B. Benutzereingaben, Datenbanken, Netzwerke). Es ist daher notwendig, Side Effects zu verwalten und zu kontrollieren, um die Vorteile der funktionalen Programmierung zu nutzen, ohne die Notwendigkeit von Side Effects zu vernachlässigen. Es ist außerdem möglich, Side Effects an den Rand des Programms zu verlagern, sodass der Großteil des Codes rein und frei von Side Effects bleibt. Dies kann beispielsweise duch den Einsatz von Datenbanken ermöglicht werden, indem der Zustand in der Datenbank gespeichert wird und die Hauptlogik des Programms rein bleibt.
+
 == Transparenz
 #todo[man muss halt iwi interne Implementierung kennen weil SE nicht klar aldf
 
   (wir müssen es schaffen nen convincing case vs. OOP zu machen)]
-- #strong[FP:] Funktionen können isoliert betrachtet und verstanden werden
-- #strong[OOP:] Man muss die gesamte Klasse und ihren aktuellen Zustand verstehen, um eine einzige Methode zu verstehen
-- #emph[OOP] macht $f(x)$, während #emph[FP] $f(5)$ macht, man sieht also direkt was #emph[FP] macht (solange man keine kryptischen Namen benutzt)
-- #strong[WICHTIG:] komplett ohne #emph[Side Effects] kommt man nicht aus, weil irgendwann muss das Programm irgendeinen Zustand ändern damit es sinnvoll ist #todo[Drauf eingehen, dass man das an den Rand verlagern kann (Beispiel: Datenbank für auslagern von state)]
+
+Beim #emph[OOP] ist Transparenz im Code oft eingeschränkt, da Methoden den internen Zustand von Objekten verändern zu können. Man muss den die gesamte Klasse und ihre Zustände verstehen, um die Auswirkungen einer einzelnen Methode zu verstehen. Das erschwert das Lesen und Warten, des Codes, da die Auswirkungen einer Methode nicht isoliert betrachtet werden können. In der #emph[funktionalen Programmierung] hingegen sind Funktionen  reine Funktionen ohne Side Effects. Dadurch können sie isoliert betrachtet und verstanden werden, was die Transparenz des Codes erhöht. Beim Beispiel #todo[Beispiel referenzieren] muss man wissen, wechen Zustand die Variable `counter`hat, um zu verstehen, was das Ergebnis von `increment()` ist. Man kann erahnen, dass `increment()` den Zustand von Counter erhöht, aber man weiß nicht das konkrete Ergebnis ohne den aktuellen Zustand zu kennen. Hier ist das noch kein großes Problem, aber bei komplexeren Methoden und Klassen wird es schnell unübersichtlich, sodass nicht direkt klar ist, was eine Methode genau macht.
+
+In der #emph[FP] hingegen ist die Funktion `increment(x)` aus #todo[Beispiel referenzieren] eine reine Funktion, die für eine Eingabe immer dieselbe Ausgabe liefert, ohne den Zustand des Programms zu verändern. Beim Aufruf von `increment(0)` sieht man den Eingabewert und kann damit besser nachvollziehen, woher die Eingabe kommt und was die Funktion macht. Dadurch wird der Code transparenter und leichter verständlich. Da reine Funktionen außerdem isoliert betrachtet werden können, ist es einfacher, sie zu verstehen, da man nicht den gesamten Kontext der Klasse oder des Objekts kennen muss um zu verstehen, was die Funktion macht.
 
 == Concurrency
 #todo[Maybe Beispiele hinzufügen?]
