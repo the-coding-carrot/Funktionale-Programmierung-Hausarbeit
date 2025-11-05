@@ -12,6 +12,7 @@
 )
 #show heading: set block(below: 1em)
 #show emph: set text(weight: "bold")
+#set bibliography(title: "Literaturverzeichnis")
 
 #include "intro.typ"
 #pagebreak()

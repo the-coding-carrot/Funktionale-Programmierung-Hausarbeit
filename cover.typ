@@ -8,5 +8,5 @@
   ]
 )
 #align(center)[
-  #text(size: 24pt, [Halöle])
+  #text(size: 24pt, [Funktionale Programmierung])
 ]
