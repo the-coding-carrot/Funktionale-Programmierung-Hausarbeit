@@ -3,7 +3,11 @@
 = Fundamentale Konzepte des FP
 == (es wäre schon witzig über Kategorien, Funktorialität und Monoiden zu yappen)
 == Notation
-ja erkläre halt generic types und `a -> b` notation für Funktionen
+Im Folgenden werden wir Signaturen von Funktionen basierend auf ihren Datentypen schreiben in der Form
+```
+x -> y
+```
+Hier ist `x` ein Vektor aus Parametern, und `y` der Rückgabewert der Funktionen.
 == Pure Functions
 äh ich glaub Maxim du führst den Begriff einfach bei Side effects ein und gut ist
 == Higher-Order Functions
@@ -22,9 +26,7 @@ def square(x: int) -> int:
 assert apply_f_to_x(4, square) == 16
 ```
 
-== Anonymous Functions
-#todo[wenn ich auch noch Currying erwähne dann das hier als unterkapitel zu Hofs]
-
+=== Anonymous Functions
 Besonders für kleine Funktionen, wie `square` im vorherigen Beispiel, kann es schnell verbos und unleserlich werden, jede dieser Funktionen seperat mit Namen zu initialisieren. In den meisten Sprachen gibt es deshalb einen Weg, Funktionen ohne Namen zu initialisieren, um sie direkt an Higher-Order Funktionen zu übergeben. In Python geschieht dies durch den `lambda` syntax:
 ```py
 lambda arg1 [, arg2, arg3, ...]: <result>
@@ -35,6 +37,26 @@ Das obige Beispiel kann demnach bedeutend kompakter geschrieben werden, ohne die
 ```py
 apply_f_to_x(4, lambda x: x ** 2)
 ```
+
+=== Currying
+Wie im vorherigen Kapitel erwähnt, können Higher-Order Functions auch Funktionen zurückgeben. Ein Anwendungsfall für dieses Pattern ist eine Art "Konstruktor" für Funktionen. Dies lässt sich gut aufzeigen am Beispiel der vorher eingeführten `square` Funktion: Es soll nun nicht nur quadriert werden, sondern der Exponent soll konfiguerbar sein. Die triviale Lösung hierfür ist eine zweistellige Funktion `(int, int) -> int`, wo der Exponent ein weiterer Parameter ist:
+```py
+def power(base: int, exponent: int) -> int:
+    return base ** exponent
+```
+
+Wollen wir nun eine Funktion mit dem selben Exponenten häufiger verwenden, können wir die Funktion `power` auch interpretieren als eine Funktion `int -> (int -> int)`, die den Exponenten als Parameter nimmt, und eine Funktion zurückgibt, welche das Potenzieren zu diesem Exponenten durchführt:
+```py
+def c_power(exponent: int) -> Callable[[int], int]:
+    return lambda base: base ** exponent
+```
+Wir können `c_power` nun nutzen, um mehrere Exponentialfunktionen zu erstellen:
+```py
+square = c_power(2)
+cube = c_power(3)
+the_answer = c_power(42)
+```
+Diese Re-interpretieren einer Funktion mit mehreren Parametern als eine Higher-Order Function nennt sich "Currying". Zu bemerken ist, dass die zurückgegebene Funktion den Kontext `exponent` beibehält, obwohl sie den Scope der Funktion `c_power` verlässt. Sie "captured" die Variable `exponent`. Capturing ist ein Weg, wie (immutable) State zwischen Funktionen weitergereicht werden kann. #todo[irgendwas zitieren für den Bullshit den ich da labere (should be like 90% correct)]
 
 
 == Monaden
