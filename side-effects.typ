@@ -14,7 +14,11 @@ increment()
 print(counter)  # Ausgabe: 1
 ```
 
-Funktionale Programmierung hingegen strebt danach, Side Effects zu minimieren oder klar vom Rest des Codes zu trennen, um die Vorteile reiner Funktionen zu nutzen. #emph[Pure Functions] sind Funktionen, die für dieselben Eingaben immer dieselben Ausgaben liefern und keine Side Effects haben. Dies erleichtert das Verständnis, Testen und die Wiederverwendbarkeit von Code erheblich. Ein Beispiel für eine reine Funktion ist:
+Funktionale Programmierung hingegen strebt danach, Side Effects zu minimieren oder klar vom Rest des Codes zu trennen, um die Vorteile reiner Funktionen zu nutzen. #emph[Pure Functions] sind Funktionen, die für dieselben Eingaben immer dieselben Ausgaben liefern und keine Side Effects haben:
+$ f:A arrow B, x mapsto y $ 
+Die Funktion erhält als Parameter einen Wert $x$ vom Typ $A$ und gibt einen Wert $y$ vom Typ $B$ zurück. Dabei wird $x$ selbst nicht verändert, und es gibt keine anderen Auswirkungen auf den Zustand des Programms.
+
+Dies erleichtert das Verständnis, Testen und die Wiederverwendbarkeit von Code erheblich. Ein Beispiel für eine reine Funktion ist:
 
 ```python
 def increment(x):

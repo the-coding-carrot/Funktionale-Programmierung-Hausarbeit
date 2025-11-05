@@ -11,6 +11,7 @@
   numbering: "1",
 )
 #show heading: set block(below: 1em)
+#show emph: set text(weight: "bold")
 
 #include "intro.typ"
 #pagebreak()

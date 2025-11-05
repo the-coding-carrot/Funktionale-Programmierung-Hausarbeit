@@ -3,13 +3,13 @@
 = Fundamentale Konzepte des FP
 == (es wäre schon witzig über Kategorien, Funktorialität und Monoiden zu yappen)
 == Notation
-Im Folgenden werden wir Signaturen von Funktionen basierend auf ihren Datentypen schreiben in der Form
-```
-x -> y
-```
-Hier ist `x` ein Vektor aus Parametern, und `y` der Rückgabewert der Funktionen.
+Im Folgenden werden wir Signaturen von Funktionen basierend auf ihren Datentypen in folgender Form schreiben:
+
+$ x arrow y $
+
+Hier ist $x$ ein Vektor aus Parametern, und $y$ der Rückgabewert der Funktion.
 == Pure Functions
-äh ich glaub Maxim du führst den Begriff einfach bei Side effects ein und gut ist
+äh ich glaub Maxim du führst den Begriff einfach bei Side effects ein und gut ist #todo[Okidoki]
 == Higher-Order Functions
 Als "Higher-Order Function" wird jede Funktion bezeichnet, die entweder durch eine andere Funktion parameterisiert wird, oder eine Funktion als Rückgabewert besitzt. Durch die Pythons dynamic geht dies ohne weiteres:
 
@@ -17,7 +17,7 @@ Als "Higher-Order Function" wird jede Funktion bezeichnet, die entweder durch ei
 def apply_f_to_x(x: int, f: Callable) -> int:
   return f(x)
 ```
-Dies ist ein Beispiel für den Syntax einer HoF in Python. Genutzt werden kann diese, indem man `apply_f_to_x` den Bezeichner einer anderen Funktion übergibt:
+Dies ist ein Beispiel für den Syntax einer #emph[HoF] in Python. Genutzt werden kann diese, indem man `apply_f_to_x` den Bezeichner einer anderen Funktion übergibt:
 
 ```py
 def square(x: int) -> int:
@@ -39,7 +39,7 @@ apply_f_to_x(4, lambda x: x ** 2)
 ```
 
 === Currying
-Wie im vorherigen Kapitel erwähnt, können Higher-Order Functions auch Funktionen zurückgeben. Ein Anwendungsfall für dieses Pattern ist eine Art "Konstruktor" für Funktionen. Dies lässt sich gut aufzeigen am Beispiel der vorher eingeführten `square` Funktion: Es soll nun nicht nur quadriert werden, sondern der Exponent soll konfiguerbar sein. Die triviale Lösung hierfür ist eine zweistellige Funktion `(int, int) -> int`, wo der Exponent ein weiterer Parameter ist:
+Wie im vorherigen Kapitel erwähnt, können #emph[Higher-Order Functions] auch Funktionen zurückgeben. Ein Anwendungsfall für dieses Pattern ist eine Art "Konstruktor" für Funktionen. Dies lässt sich gut aufzeigen am Beispiel der vorher eingeführten `square` Funktion: Es soll nun nicht nur quadriert werden, sondern der Exponent soll konfiguerbar sein. Die triviale Lösung hierfür ist eine zweistellige Funktion `(int, int) -> int`, wo der Exponent ein weiterer Parameter ist:
 ```py
 def power(base: int, exponent: int) -> int:
     return base ** exponent
@@ -50,13 +50,15 @@ Wollen wir nun eine Funktion mit dem selben Exponenten häufiger verwenden, kön
 def c_power(exponent: int) -> Callable[[int], int]:
     return lambda base: base ** exponent
 ```
+#todo[Hier fehlt glaub ich eine eckige Klammer bei Callable]
+
 Wir können `c_power` nun nutzen, um mehrere Exponentialfunktionen zu erstellen:
 ```py
 square = c_power(2)
 cube = c_power(3)
 the_answer = c_power(42)
 ```
-Diese Re-interpretieren einer Funktion mit mehreren Parametern als eine Higher-Order Function nennt sich "Currying". Zu bemerken ist, dass die zurückgegebene Funktion den Kontext `exponent` beibehält, obwohl sie den Scope der Funktion `c_power` verlässt. Sie "captured" die Variable `exponent`. Capturing ist ein Weg, wie (immutable) State zwischen Funktionen weitergereicht werden kann. #todo[irgendwas zitieren für den Bullshit den ich da labere (should be like 90% correct)]
+Diese Reinterpretation einer Funktion mit mehreren Parametern als eine #emph[Higher-Order Function] nennt sich #emph[Currying]. Zu bemerken ist, dass die zurückgegebene Funktion den Kontext `exponent` beibehält, obwohl sie den Scope der Funktion `c_power` verlässt. Sie "captured" die Variable `exponent`. Capturing ist ein Weg, wie (immutable) State zwischen Funktionen weitergereicht werden kann. #todo[irgendwas zitieren für den Bullshit den ich da labere (should be like 90% correct)]
 
 
 == Monaden
@@ -68,7 +70,7 @@ Eine Monade kann definiert werden als ein Parameterisierter Datentyp `M<T>`, der
 
 Damit `M` tatsächlich eine Monade ist, muss `unit` als Neutrales Element bezüglich der `bind` Operation agieren, und die Operation `bind` assoziativ sein/*@monad_intro_medium*/.
 
-Die Rolle der Methoden `unit` und `bind` können gut anhand des Beispiels der sogenannten "Maybe Monade" demonstriert werden. Diese abstrahiert den Side-Effect der möglichen Nicht-Existenz des enkapsulierten Wertes. Folgendes ist eine beispielhafte Implementierung der Maybe Monade in Python #footnote("Anzumerken ist, dass sich die Mächtigkeit der Struktur besser aufzeigen ließe in einer Sprache, die Algebraische Summentypen unterstützt. Da Python dies nicht tut, nutzt unsere Implementierung weiterhin das prozedurelle null-pattern (`None`) zur Repräsentation eines nicht existierenden Wertes."):
+Die Rolle der Methoden `unit` und `bind` können gut anhand des Beispiels der sogenannten "Maybe Monade" demonstriert werden. Diese abstrahiert den Side-Effect der möglichen Nicht-Existenz des enkapsulierten Wertes. Folgendes ist eine beispielhafte Implementierung der Maybe Monade in Python #footnote("Anzumerken ist, dass sich die Mächtigkeit der Struktur besser aufzeigen ließe in einer Sprache, die Algebraische Summentypen unterstützt. Da Python dies nicht tut, nutzt unsere Implementierung weiterhin das prozedurale null-pattern (`None`) zur Repräsentation eines nicht existierenden Wertes."):
 
 ```py
 T, S = TypeVar("T"), TypeVar("S")
