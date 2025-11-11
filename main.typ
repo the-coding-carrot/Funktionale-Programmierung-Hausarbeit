@@ -1,3 +1,5 @@
+#set document(title: [Funktionale Programmierung])
+
 #include "cover.typ"
 #set page(
   margin: (top: 4cm),
@@ -10,10 +12,14 @@
   ],
   numbering: "1",
 )
+#counter(page).update(1)
 #show heading: set block(below: 1em)
 #show emph: set text(weight: "bold")
 #set bibliography(title: "Literaturverzeichnis")
-
+#outline(
+  title: "Inhaltsverzeichnis"
+)
+#pagebreak()
 #include "intro.typ"
 #pagebreak()
 #include "side-effects.typ"

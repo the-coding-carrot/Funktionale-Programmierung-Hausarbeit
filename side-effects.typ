@@ -41,9 +41,10 @@ Beim #emph[OOP] ist Transparenz im Code oft eingeschränkt, da Methoden den inte
 In der #emph[FP] hingegen ist die Funktion `increment(x)` aus #todo[Beispiel referenzieren] eine reine Funktion, die für eine Eingabe immer dieselbe Ausgabe liefert, ohne den Zustand des Programms zu verändern. Beim Aufruf von `increment(0)` sieht man den Eingabewert und kann damit besser nachvollziehen, woher die Eingabe kommt und was die Funktion macht. Dadurch wird der Code transparenter und leichter verständlich. Da reine Funktionen außerdem isoliert betrachtet werden können, ist es einfacher, sie zu verstehen, da man nicht den gesamten Kontext der Klasse oder des Objekts kennen muss um zu verstehen, was die Funktion macht.
 
 == Concurrency
-#todo[Maybe Beispiele hinzufügen?]
+Unter #emph[Concurrency] versteht man die Fähigkeit eines Programms, mehrere Aufgaben gleichzeitig auszuführen. Ein Problem im #emph[OOP] ist der Umgang mit #emph[Shared Mutable State], also mit gemeinsam genutztem, veränderbarem Zustand. Wenn mehrere Threads gleichzeitig auf denselben Zustand zugreifen und diesen ändern, kann es zu Inkonsistenzen kommen. Das führt zu unerwartetem Verhalten, da die Threads sich gegenseitig beeinflussen. In #emph[OOP] wird dieses Problem mit #emph[Locks] gelöst, die sicherstellen, dass nur ein Thread gleichzeitig auf den Zustand zugreifen kann. Dies kann jedoch zu #emph[Deadlocks] führen, bei denen zwei oder mehr Threads sich gegenseitig blockieren und nicht weiterarbeiten können. In der #emph[funktionalen Programmierung] hingegen sind Daten #emph[immutable]. Ein Thread in der #emph[funktionalen Programmierung] bekommt also keinen globalen Zustand, den er ändern kann, sondern eine Kopie des Zustands. Wenn ein Thread eine Änderung vornehmen möchte, dann erstellt er eine neue Version des Zustands, anstatt den ursprünglichen Zustand zu ändern. Damit können Threads nicht mehr konkurrieren und sich gegenseitig beeinflussen. In der #emph[funktionalen Programmierung] wird das Problem der #emph[Concurrency] vermieden indem es keine gemeinsamen Zustände gibt.
 
-#todo[Under construction, die Beispiele werden noch angepasst und an die richtige Stelle gepackt]
+Das Problem der #emph[Concurrency] soll anhand eines Beispiels verdeutlicht werden. Im folgenden Beispiel wird die Summe der Quadrate der Zahlen von $0$ bis $N-1$ im #emph[OOP] berechnet:
+
 ```python
 from threading import Thread
 N = 100_000
@@ -72,7 +73,9 @@ if __name__ == "__main__":
     # Erwartet: N*(N-1)*(2N-1)/6; ohne Lock meist kleiner/falsch
 ```
 
-Bla Bla
+Im obigen Beispiel wird eine Klasse `Acc` definiert, die einen gemeinsamen, veränderlichen Zustand `sum` enthält. Zwei Threads werden gestartet, die jeweils die Quadrate der Zahlen in einem bestimmten Bereich berechnen und zur Summe hinzufügen. Da kein Lock verwendet wird, können Race-Conditions auftreten, was zu einem falschen Ergebnis führt. Wenn beide Threads gleichzeitig auf `self.sum` zugreifen und diesen Wert ändern, kann es passieren, dass eine Änderung die andere überschreibt, was zu einem inkonsistenten Zustand führt.
+
+Im folgenden Beispiel wird dasselbe Problem in der #emph[funktionalen Programmierung] gelöst:
 
 ```python
 from concurrent.futures import ThreadPoolExecutor
@@ -89,4 +92,4 @@ if __name__ == "__main__":
     print("FP (no shared mutation) -> sum =", total)
 ```
 
-Unter #emph[Concurrency] versteht man die Fähigkeit eines Programms, mehrere Aufgaben gleichzeitig auszuführen. Ein Problem im #emph[OOP] ist der Umgang mit #emph[Shared Mutable State], also mit gemeinsam genutztem, veränderbarem Zustand. Wenn mehrere Threads gleichzeitig auf denselben Zustand zugreifen und diesen ändern, kann es zu Inkonsistenzen kommen. Das führt zu unerwartetem Verhalten, da die Threads sich gegenseitig beeinflussen. In #emph[OOP] wird dieses Problem mit #emph[Locks] gelöst, die sicherstellen, dass nur ein Thread gleichzeitig auf den Zustand zugreifen kann. Dies kann jedoch zu #emph[Deadlocks] führen, bei denen zwei oder mehr Threads sich gegenseitig blockieren und nicht weiterarbeiten können. In der #emph[funktionalen Programmierung] hingegen sind Daten #emph[immutable]. Ein Thread in der #emph[funktionalen Programmierung] bekommt also keinen globalen Zustand, den er ändern kann, sondern eine Kopie des Zustands. Wenn ein Thread eine Änderung vornehmen möchte, dann erstellt er eine neue Version des Zustands, anstatt den ursprünglichen Zustand zu ändern. Damit können Threads nicht mehr konkurrieren und sich gegenseitig beeinflussen. In der #emph[funktionalen Programmierung] wird das Problem der #emph[Concurrency] also vermieden indem es keine gemeinsamen Zustände gibt.
+Im obigen Beispiel wird die Funktion `square` definiert, die eine reine Funktion ist und keine Seiteneffekte hat. Mehrere Threads werden gestartet, die jeweils die Quadrate der Zahlen in einem bestimmten Bereich berechnen. Da es keinen gemeinsamen, veränderlichen Zustand gibt, treten keine Race-Conditions auf, und das Ergebnis ist konsistent.

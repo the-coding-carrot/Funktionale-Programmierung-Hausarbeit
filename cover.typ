@@ -7,6 +7,20 @@
     )
   ]
 )
-#align(center)[
-  #text(size: 24pt, [Funktionale Programmierung])
-]
+#show title: set text(size: 24pt)
+#show title: set align(center)
+#show title: set block(below: 2em)
+#title()
+#grid(
+  columns: (1fr, 1fr),
+  align(center)[
+    Emil Schläger \
+    Matrikelnummer \
+    #link("mailto:infX@lehre.dhbw-stuttgart.de")
+  ],
+  align(center)[
+    Maxim Tausch \
+    8395214 \
+    #link("mailto:inf23142@lehre.dhbw-stuttgart.de")
+  ]
+)
