@@ -39,18 +39,25 @@ apply_f_to_x(4, lambda x: x ** 2)
 ```
 
 === Currying
-Wie im vorherigen Kapitel erwähnt, können #emph[Higher-Order Functions] auch Funktionen zurückgeben. Ein Anwendungsfall für dieses Pattern ist eine Art "Konstruktor" für Funktionen. Dies lässt sich gut aufzeigen am Beispiel der vorher eingeführten `square` Funktion: Es soll nun nicht nur quadriert werden, sondern der Exponent soll konfiguerbar sein. Die triviale Lösung hierfür ist eine zweistellige Funktion `(int, int) -> int`, wo der Exponent ein weiterer Parameter ist:
+Wie im vorherigen Kapitel erwähnt, können #emph[Higher-Order Functions] auch Funktionen zurückgeben. Ein Anwendungsfall für dieses Pattern ist eine Art "Konstruktor" für Funktionen. Dies lässt sich gut aufzeigen am Beispiel der vorher eingeführten `square` Funktion: Es soll nun nicht nur quadriert werden, sondern der Exponent soll konfiguerbar sein. Die triviale Lösung hierfür ist eine zweistellige Funktion
+
+$ ("int", "int") -> "int", $
+
+wo der Exponent ein weiterer Parameter ist:
 ```py
 def power(base: int, exponent: int) -> int:
     return base ** exponent
 ```
 
-Wollen wir nun eine Funktion mit dem selben Exponenten häufiger verwenden, können wir die Funktion `power` auch interpretieren als eine Funktion `int -> (int -> int)`, die den Exponenten als Parameter nimmt, und eine Funktion zurückgibt, welche das Potenzieren zu diesem Exponenten durchführt:
+Wollen wir nun eine Funktion mit dem selben Exponenten häufiger verwenden, können wir die Funktion `power` auch interpretieren als eine Funktion
+
+$ "int" -> ("int" -> "int"), $
+
+die den Exponenten als Parameter nimmt, und eine Funktion zurückgibt, welche das Potenzieren zu diesem Exponenten durchführt:
 ```py
 def c_power(exponent: int) -> Callable[[int], int]:
     return lambda base: base ** exponent
 ```
-#todo[Hier fehlt glaub ich eine eckige Klammer bei Callable]
 
 Wir können `c_power` nun nutzen, um mehrere Exponentialfunktionen zu erstellen:
 ```py
@@ -64,11 +71,21 @@ Diese Reinterpretation einer Funktion mit mehreren Parametern als eine #emph[Hig
 == Monaden
 Das Pattern der Monade ist der Weg, wie deterministisch mit Seiteneffekten umgegangen werden kann. Monaden an sich sind ein Konzept aus der Kategorientheorie und entsprechend tief theoretisch verwurzelt. Wir wollen Monaden aber nur aus der Perspektive eines Software-Engineers betrachten, und werden deshalb theoretische Grundlagen auslassen. #todo[unless we don't still gotta decide]
 
-Eine Monade kann definiert werden als ein Parameterisierter Datentyp `M<T>`, der Methoden mit den Folgenen Signaturen bereitstellt/*@notions_computations*/:
-+ `unit: T -> M<T>`
-+ `bind: (M<A>, A -> M<B>) -> M<B>`
+Eine Monade kann definiert werden als ein Parameterisierter Datentyp $M angle.l T angle.r$, der Methoden mit den Folgenen Signaturen bereitstellt/*@notions_computations*/:
 
-Damit `M` tatsächlich eine Monade ist, muss `unit` als Neutrales Element bezüglich der `bind` Operation agieren, und die Operation `bind` assoziativ sein/*@monad_intro_medium*/.
+
+#set math.equation(numbering: "(1)")
+
+$ "unit": T -> M angle.l T angle.r $
+$ "bind": (M angle.l A angle.r,med med A -> M angle.l B angle.r) -> M angle.l B angle.r $
+
+
+// + `unit: T -> M<T>`
+// + `bind: (M<A>, A -> M<B>) -> M<B>`
+//
+#set math.equation()
+
+Damit $M$ tatsächlich eine Monade ist, muss `unit` als Neutrales Element bezüglich der `bind` Operation agieren, und die Operation `bind` assoziativ sein/*@monad_intro_medium*/.
 
 Die Rolle der Methoden `unit` und `bind` können gut anhand des Beispiels der sogenannten "Maybe Monade" demonstriert werden. Diese abstrahiert den Side-Effect der möglichen Nicht-Existenz des enkapsulierten Wertes. Folgendes ist eine beispielhafte Implementierung der Maybe Monade in Python #footnote("Anzumerken ist, dass sich die Mächtigkeit der Struktur besser aufzeigen ließe in einer Sprache, die Algebraische Summentypen unterstützt. Da Python dies nicht tut, nutzt unsere Implementierung weiterhin das prozedurale null-pattern (`None`) zur Repräsentation eines nicht existierenden Wertes."):
 
