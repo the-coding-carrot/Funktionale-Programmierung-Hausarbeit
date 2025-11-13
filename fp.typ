@@ -71,13 +71,13 @@ Diese Reinterpretation einer Funktion mit mehreren Parametern als eine #emph[Hig
 == Monaden
 Das Pattern der Monade ist der Weg, wie deterministisch mit Seiteneffekten umgegangen werden kann. Monaden an sich sind ein Konzept aus der Kategorientheorie und entsprechend tief theoretisch verwurzelt. Wir wollen Monaden aber nur aus der Perspektive eines Software-Engineers betrachten, und werden deshalb theoretische Grundlagen auslassen. #todo[unless we don't still gotta decide]
 
-Eine Monade kann definiert werden als ein Parameterisierter Datentyp $M angle.l T angle.r$, der Methoden mit den Folgenen Signaturen bereitstellt/*@notions_computations*/:
+Eine Monade kann definiert werden als ein Parameterisierter Datentyp $M chevron.l T chevron.r$, der Methoden mit den Folgenen Signaturen bereitstellt/*@notions_computations*/:
 
 
 #set math.equation(numbering: "(1)")
 
-$ "unit": T -> M angle.l T angle.r $
-$ "bind": (M angle.l A angle.r,med med A -> M angle.l B angle.r) -> M angle.l B angle.r $
+$ "unit": T -> M chevron.l T chevron.r $
+$ "bind": (M chevron.l A chevron.r,med med A -> M chevron.l B chevron.r) -> M chevron.l B chevron.r $
 
 
 // + `unit: T -> M<T>`

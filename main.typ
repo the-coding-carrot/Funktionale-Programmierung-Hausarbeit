@@ -14,7 +14,8 @@
 )
 #counter(page).update(1)
 #show heading: set block(below: 1em)
-#show emph: set text(weight: "bold")
+#show raw: set block(fill: rgb(245, 245, 245), inset: 1em, width: 100%)
+// #show emph: set text(weight: "bold") // wenn man es oft benutzt sieht es scheiße aus
 #set bibliography(title: "Literaturverzeichnis")
 #outline(
   title: "Inhaltsverzeichnis"
