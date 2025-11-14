@@ -8,8 +8,8 @@ Im Folgenden werden wir Signaturen von Funktionen basierend auf ihren Datentypen
 $ x arrow y $
 
 Hier ist $x$ ein Vektor aus Parametern, und $y$ der Rückgabewert der Funktion.
-== Pure Functions
-äh ich glaub Maxim du führst den Begriff einfach bei Side effects ein und gut ist #todo[Okidoki]
+// == Pure Functions
+// äh ich glaub Maxim du führst den Begriff einfach bei Side effects ein und gut ist #todo[Okidoki]
 == Higher-Order Functions
 Als "Higher-Order Function" wird jede Funktion bezeichnet, die entweder durch eine andere Funktion parameterisiert wird, oder eine Funktion als Rückgabewert besitzt. Durch die Pythons dynamic geht dies ohne weiteres:
 

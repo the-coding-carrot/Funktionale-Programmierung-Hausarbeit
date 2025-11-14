@@ -102,4 +102,5 @@ print(r1, r2)
 
 ```
 
-= ggf. Comparison mit anderen Paradigmen (OOP & Procedural)
+= ggf. Comparison mit anderen Paradigmen (OOP & Procedural) // Vielleicht kann man das auch in der Zusammenfassung machen? Außer wir wollen das ausfühlich machen
+
