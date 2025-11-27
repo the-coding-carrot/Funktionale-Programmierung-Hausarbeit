@@ -15,12 +15,12 @@
   columns: (1fr, 1fr),
   align(center)[
     Emil Schläger \
-    Matrikelnummer \
-    #link("mailto:infX@lehre.dhbw-stuttgart.de")
+    Matrikelnummer: \
+    #link("mailto:inf23123@lehre.dhbw-stuttgart.de")
   ],
   align(center)[
     Maxim Tausch \
-    8395214 \
+    Matrikelnummer: 8395214 \
     #link("mailto:inf23142@lehre.dhbw-stuttgart.de")
   ]
 )
