@@ -7,7 +7,12 @@ Im Folgenden werden wir Signaturen von Funktionen basierend auf ihren Datentypen
 
 $ x arrow y $
 
-Hier ist $x$ ein Vektor aus Parametern, und $y$ der Rückgabewert der Funktion.
+Hierbei ist $x$ der Vektor der Datentypen der Parameter, und $y$ der Datentyp des Rückgabewerts der Funktion. Um Funktionstypen in Python darzustellen, nutzen wir die den Typ `Callable` aus der `Typing` library:
+```py
+Callable[[x], y]
+```
+
+
 Anzumerken ist, dass bei dieser Schreibweise vorausgesetzt wird, dass die beschriebene Funktion rein ist.
 // == Pure Functions
 // äh ich glaub Maxim du führst den Begriff einfach bei Side effects ein und gut ist #todo[Okidoki]
@@ -15,7 +20,7 @@ Anzumerken ist, dass bei dieser Schreibweise vorausgesetzt wird, dass die beschr
 Als "Higher-Order Function" (HoF) wird jede Funktion bezeichnet, die entweder durch eine andere Funktion parameterisiert wird, oder eine Funktion als Rückgabewert besitzt. Durch die Pythons dynamic geht dies ohne weiteres:
 
 ```py
-def apply_f_to_x(x: int, f: Callable) -> int:
+def apply_f_to_x(x: int, f: Callable[[int], int]) -> int:
   return f(x)
 ```
 Dies ist ein Beispiel für den Syntax einer #emph[HoF] in Python. Genutzt werden kann diese, indem man `apply_f_to_x` den Bezeichner einer anderen Funktion übergibt:
@@ -54,6 +59,7 @@ wo der Exponent ein weiterer Parameter ist:
 def power(base: int, exponent: int) -> int:
     return base ** exponent
 ```
+// $ (A, B) -> C quad equiv quad A ->(B -> C) $
 
 Wollen wir nun eine Funktion mit dem selben Exponenten häufiger verwenden, können wir die Funktion `power` auch interpretieren als eine Funktion
 
@@ -69,11 +75,9 @@ Wir können `c_power` nun nutzen, um mehrere Exponentialfunktionen zu erstellen:
 ```py
 square = c_power(2)
 cube = c_power(3)
-the_answer = c_power(42)
 
-assert square(2) == 4
-assert cube(2) == 8
-assert the_answer(2) == 4_398_046_511_104
+assert square(2) == power(2, 2)
+assert cube(2) == power(2, 3)
 ```
 Diese Re-Interpretation einer Funktion mit mehreren Parametern als eine #emph[Higher-Order Function] nennt sich #emph[Currying]. Zu bemerken ist, dass die zurückgegebene Funktion den Kontext `exponent` beibehält, obwohl sie den Scope der Funktion `c_power` verlässt. Sie "captured" die Variable `exponent`. Capturing ist ein Weg, wie (immutable) State zwischen Funktionen weitergereicht werden kann. #todo[irgendwas zitieren für den Bullshit den ich da labere (should be like 90% correct)]
 
@@ -95,9 +99,14 @@ $ "bind": (M chevron.l A chevron.r,med med A -> M chevron.l B chevron.r) -> M ch
 // + `unit: T -> M<T>`
 // + `bind: (M<A>, A -> M<B>) -> M<B>`
 //
-#set math.equation()
 
-Damit $M$ tatsächlich eine Monade ist, muss `unit` als Neutrales Element bezüglich der `bind` Operation agieren, und die Operation `bind` assoziativ sein/*@monad_intro_medium*/.
+Damit $M$ tatsächlich eine Monade ist, muss `unit` als Neutrales Element bezüglich der `bind` Operation agieren (3) `bind` assoziativ sein (4)/*@monad_intro_medium*/:
+
+$ "bind"("unit"(a), f) quad equiv quad f(a) \ "bind"(a, "unit") quad equiv quad a $ <identity>
+$ "bind"("bind"(a, f), g) equiv "bind"(a, "bind"(f(a), g)) $ <associativity>
+
+
+
 
 === Maybe Monade
 
