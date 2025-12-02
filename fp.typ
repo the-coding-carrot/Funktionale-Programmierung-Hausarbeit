@@ -48,7 +48,12 @@ applyFToX(4, x -> x * x);
 
 Anonyme Funktionen gibt es in beinahe allen modernen Programmiersprachen. In JavaScript beispielsweise ist der Syntax analog:
 ```js
-(x) => x ** 2
+(x) => x * x
+```
+Python besitzt den sogenannten lambda-Syntax:
+
+```py
+lambda x: x * x
 ```
 
 === Currying
@@ -114,40 +119,38 @@ $ "bind"("bind"(a, f), g) equiv "bind"(a, "bind"(f(a), g)) $ <associativity>
 
 === Maybe Monade
 
-Die Rolle der Methoden `unit` und `bind` können gut anhand des Beispiels der sogenannten "Maybe Monade" demonstriert werden. Diese abstrahiert den Side-Effect der möglichen Nicht-Existenz des enkapsulierten Wertes. Listing @maybe-monad ist eine beispielhafte, rudimentäre Implementierung der Maybe Monade#footnote("Anzumerken ist, dass sich die Mächtigkeit der Struktur besser aufzeigen ließe in einer Sprache, die Algebraische Summentypen unterstützt. Java unterstützt diese seit Version 17 durch sealed interfaces. Die vollständige Implementierung befindet sich im Anhang."):
+Die Rolle der Methoden `unit` und `bind` können gut anhand des Beispiels der sogenannten "Maybe Monade" demonstriert werden. Diese abstrahiert den Side-Effect der möglichen Nicht-Existenz des enkapsulierten Wertes. Listing @maybe-monad ist eine beispielhafte, rudimentäre Implementierung der Maybe Monade. Diese benutzt das Sprach-Feature von "Sealed Interfaces", die seit Java 17 unterstützt werden. #todo[Anhang]
 
 #figure(
   ```java
   public sealed interface Maybe<T> permits Maybe.Just, Maybe.Nothing {
-      // unit: T -> Maybe<T>
-      static <T> Maybe<T> unit(T value) {
-          if (value == null) return new Nothing<>();
-          return new Just<>(value);
-      }
+        static <T> Maybe<T> unit(T value) {
+            if (value == null) return new Nothing<>();
+            return new Just<>(value);
+        }
 
-      // bind: (Maybe<A>, A -> Maybe<B>) -> Maybe<B>
-      <S> Maybe<S> bind(Function<T, Maybe<S>> f);
+        <S> Maybe<S> bind(Function<T, Maybe<S>> f);
 
-      boolean isPresent();
-      T getValue();
+        boolean isPresent();
+        T getValue() throws Exception;
 
-      // Just: Wert ist vorhanden
-      final class Just<T> implements Maybe<T> {
-          private final T value;
+        // Implementierung der `Just` Variante
+        final class Just<T> implements Maybe<T> {
+            private final T value;
 
-          public <S> Maybe<S> bind(Function<T, Maybe<S>> f) {
-              return f.apply(this.value);
-          }
-          // ... weitere Methoden
-      }
+            public <S> Maybe<S> bind(Function<T, Maybe<S>> f) {
+                return f.apply(this.value);
+            }
+            // weitere Methoden - s. Anhang
+        }
 
-      // Nothing: Wert ist nicht vorhanden
-      final class Nothing<T> implements Maybe<T> {
-          public <S> Maybe<S> bind(Function<T, Maybe<S>> f) {
-              return new Nothing<>();
-          }
-          // ... weitere Methoden
-      }
+        // Implementierung der `Nothing` Variante
+        final class Nothing<T> implements Maybe<T> {
+            public <S> Maybe<S> bind(Function<T, Maybe<S>> f) {
+                return new Nothing<>();
+            }
+            // weitere Methoden - s. Anhang
+        }
   }
   ```,
   caption: [Rudimentäre Implementierung der Maybe Monade],
@@ -170,7 +173,7 @@ Maybe<Integer> result = Maybe.unit(input.nextLine())
         : Maybe.nothing())
     .bind(x -> Maybe.unit(x - 2));
 ```
-Gibt der Nutzer eine valide Zahl ein (dies wird überprüft durch die `matches` Methode mit einem regulären Ausdruck), enthält `result.getValue()` das korrekte Ergebnis als Integer. Tut der Nutzer dies allerdings nicht, gibt `result.isPresent()` `false` zurück. In diesem Fall könnte man beispielsweise dem Benutzer eine Fehlermeldung anzeigen. Die hier gezeigte Implementierung ist der Übersichtlichkeit halber rudimentär gehalten - in einer tatsächlichen Codebase sollte die Klasse weitere API Methoden enthalten (zum beispiel eine Funktion $"is_present":M chevron.l T chevron.r arrow "bool"$), um Entwicklern eine sinnvolle Nutzung der `Maybe` Klasse mit semantischer Relevanz zu ermöglichen.
+Gibt der Nutzer eine valide Zahl ein (dies wird überprüft durch die `matches` Methode mit einem regulären Ausdruck), enthält `result.getValue()` das korrekte Ergebnis als Integer. Tut der Nutzer dies allerdings nicht, gibt `result.isPresent()` `false` zurück. In diesem Fall könnte man beispielsweise dem Benutzer eine Fehlermeldung anzeigen. Die hier gezeigte Implementierung ist der Übersichtlichkeit halber rudimentär gehalten - in einer tatsächlichen Codebase sollte die Klasse weitere API Methoden enthalten (zum beispiel eine Funktion $"getValueOrDefault":M chevron.l T chevron.r arrow T$, die im Falle einer Nicht-Existenz einen Default Wert zurück gibt anstatt eine Exception zu werfen), um Entwicklern eine sinnvolle Nutzung der `Maybe` Klasse mit semantischer Relevanz zu ermöglichen.
 
 // === Funktorialität
 // #todo[Unsure]

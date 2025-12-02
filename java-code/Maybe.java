@@ -20,7 +20,7 @@ public sealed interface Maybe<T> permits Maybe.Just, Maybe.Nothing {
 
     boolean isPresent();
 
-    T getValue();
+    T getValue() throws Exception;
 
     // Just represents a value that is present
     final class Just<T> implements Maybe<T> {
