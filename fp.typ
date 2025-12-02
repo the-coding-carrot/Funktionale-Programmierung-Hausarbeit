@@ -5,11 +5,11 @@ Funktionale Programmierung ist tief verwurzelt in den theoretischen Feldern der 
 == Notation
 Im Folgenden werden wir Signaturen von Funktionen basierend auf ihren Datentypen in folgender Form schreiben:
 
-$ x arrow y $
+$ X arrow Y $
 
-Hierbei ist $x$ der Vektor der Datentypen der Parameter, und $y$ der Datentyp des Rückgabewerts der Funktion. Um Funktionstypen in Python darzustellen, nutzen wir die den Typ `Callable` aus der `Typing` library:
-```py
-Callable[[x], y]
+Hierbei ist $X$ der Vektor der Datentypen der Parameter, und $Y$ der Datentyp des Rückgabewerts der Funktion. Um Funktionstypen in Java darzustellen, nutzen wir die generische Klasse `Function` aus dem `java.util.function` Paket:
+```java
+Function<X, Y>
 ```
 
 
@@ -17,34 +17,36 @@ Anzumerken ist, dass bei dieser Schreibweise vorausgesetzt wird, dass die beschr
 // == Pure Functions
 // äh ich glaub Maxim du führst den Begriff einfach bei Side effects ein und gut ist #todo[Okidoki]
 == Higher-Order Functions
-Als "Higher-Order Function" (HoF) wird jede Funktion bezeichnet, die entweder durch eine andere Funktion parameterisiert wird, oder eine Funktion als Rückgabewert besitzt. Durch die Pythons dynamic geht dies ohne weiteres:
+Als "Higher-Order Function" (HoF) wird jede Funktion bezeichnet, die entweder durch eine andere Funktion parameterisiert wird, oder eine Funktion als Rückgabewert besitzt. In Java können wir dies durch funktionale Interfaces realisieren:
 
-```py
-def apply_f_to_x(x: int, f: Callable[[int], int]) -> int:
-  return f(x)
+```java
+int applyFToX(int x, Function<Integer, Integer> f) {
+    return f.apply(x);
+}
 ```
-Dies ist ein Beispiel für den Syntax einer #emph[HoF] in Python. Genutzt werden kann diese, indem man `apply_f_to_x` den Bezeichner einer anderen Funktion übergibt:
+Dies ist ein Beispiel für den Syntax einer #emph[HoF] in Java. Genutzt werden kann diese, indem man `applyFToX` den Bezeichner einer anderen Funktion übergibt:
 
-```py
-def square(x: int) -> int:
-  return x ** 2
+```java
+int square(int x) {
+    return x * x;
+}
 
-assert apply_f_to_x(4, square) == 16
+assert applyFToX(4, this::square) == 16;
 ```
 
 === Anonymous Functions
-Besonders für kleine Funktionen, wie `square` im vorherigen Beispiel, kann es schnell verbos und unleserlich werden, jede dieser Funktionen seperat mit einem Bezeichner zu deklarieren. In den meisten Sprachen gibt es deshalb einen Weg, Funktionen ohne Bezeichner zu initialisieren, um sie direkt an HoFs zu übergeben. In Python geschieht dies durch den `lambda` syntax:
-```py
-lambda arg1 [, arg2, arg3, ...]: <result>
+Besonders für kleine Funktionen, wie `square` im vorherigen Beispiel, kann es schnell verbos und unleserlich werden, jede dieser Funktionen seperat mit einem Bezeichner zu deklarieren. In den meisten Sprachen gibt es deshalb einen Weg, Funktionen ohne Bezeichner zu initialisieren, um sie direkt an HoFs zu übergeben. In Java geschieht dies durch den Lambda Syntax:
+```java
+(arg1, arg2, arg3, ...) -> <result>
 ```
 
 Das obige Beispiel kann demnach bedeutend kompakter geschrieben werden, ohne die Funktion `square` seperat zu deklarieren:
 
-```py
-apply_f_to_x(4, lambda x: x ** 2)
+```java
+applyFToX(4, x -> x * x);
 ```
 
-Anonyme Funktionen gibt es in beinahe allen modernen Programmiersprachen. In JavaScript beispielsweise ist der Syntax wie folgt:
+Anonyme Funktionen gibt es in beinahe allen modernen Programmiersprachen. In JavaScript beispielsweise ist der Syntax analog:
 ```js
 (x) => x ** 2
 ```
@@ -55,9 +57,10 @@ Wie im vorherigen Kapitel erwähnt, können #emph[Higher-Order Functions] auch F
 $ ("int", "int") -> "int", $
 
 wo der Exponent ein weiterer Parameter ist:
-```py
-def power(base: int, exponent: int) -> int:
-    return base ** exponent
+```java
+int power(int base, int exponent) {
+    return (int) Math.pow(base, exponent);
+}
 ```
 // $ (A, B) -> C quad equiv quad A ->(B -> C) $
 
@@ -66,18 +69,19 @@ Wollen wir nun eine Funktion mit dem selben Exponenten häufiger verwenden, kön
 $ "int" -> ("int" -> "int"), $
 
 die den Exponenten als Parameter nimmt, und eine Funktion zurückgibt, welche das Potenzieren zu diesem Exponenten durchführt:
-```py
-def c_power(exponent: int) -> Callable[[int], int]:
-    return lambda base: base ** exponent
+```java
+Function<Integer, Integer> cPower(int exponent) {
+    return base -> (int) Math.pow(base, exponent);
+}
 ```
 
-Wir können `c_power` nun nutzen, um mehrere Exponentialfunktionen zu erstellen:
-```py
-square = c_power(2)
-cube = c_power(3)
+Wir können `cPower` nun nutzen, um mehrere Exponentialfunktionen zu erstellen:
+```java
+Function<Integer, Integer> square = cPower(2);
+Function<Integer, Integer> cube = cPower(3);
 
-assert square(2) == power(2, 2)
-assert cube(2) == power(2, 3)
+assert square.apply(2) == power(2, 2);
+assert cube.apply(2) == power(2, 3);
 ```
 Diese Re-Interpretation einer Funktion mit mehreren Parametern als eine #emph[Higher-Order Function] nennt sich #emph[Currying]. Zu bemerken ist, dass die zurückgegebene Funktion den Kontext `exponent` beibehält, obwohl sie den Scope der Funktion `c_power` verlässt. Sie "captured" die Variable `exponent`. Capturing ist ein Weg, wie (immutable) State zwischen Funktionen weitergereicht werden kann. #todo[irgendwas zitieren für den Bullshit den ich da labere (should be like 90% correct)]
 
@@ -110,45 +114,63 @@ $ "bind"("bind"(a, f), g) equiv "bind"(a, "bind"(f(a), g)) $ <associativity>
 
 === Maybe Monade
 
-Die Rolle der Methoden `unit` und `bind` können gut anhand des Beispiels der sogenannten "Maybe Monade" demonstriert werden. Diese abstrahiert den Side-Effect der möglichen Nicht-Existenz des enkapsulierten Wertes. Listing @maybe-monad ist eine beispielhafte, rudimentäre Implementierung der Maybe Monade#footnote("Anzumerken ist, dass sich die Mächtigkeit der Struktur besser aufzeigen ließe in einer Sprache, die Algebraische Summentypen unterstützt. Da Python dies nicht tut, nutzt unsere Implementierung weiterhin das prozedurale null-pattern (`None`) zur Repräsentation eines nicht existierenden Wertes."):
+Die Rolle der Methoden `unit` und `bind` können gut anhand des Beispiels der sogenannten "Maybe Monade" demonstriert werden. Diese abstrahiert den Side-Effect der möglichen Nicht-Existenz des enkapsulierten Wertes. Listing @maybe-monad ist eine beispielhafte, rudimentäre Implementierung der Maybe Monade#footnote("Anzumerken ist, dass sich die Mächtigkeit der Struktur besser aufzeigen ließe in einer Sprache, die Algebraische Summentypen unterstützt. Java unterstützt diese seit Version 17 durch sealed interfaces. Die vollständige Implementierung befindet sich im Anhang."):
 
 #figure(
-  ```py
-  T, S = TypeVar("T"), TypeVar("S")
-  class Maybe(Generic[T]):
-      value: T
+  ```java
+  public sealed interface Maybe<T> permits Maybe.Just, Maybe.Nothing {
+      // unit: T -> Maybe<T>
+      static <T> Maybe<T> unit(T value) {
+          if (value == null) return new Nothing<>();
+          return new Just<>(value);
+      }
 
-      def __init__(self, value: T):
-          self.value = value
+      // bind: (Maybe<A>, A -> Maybe<B>) -> Maybe<B>
+      <S> Maybe<S> bind(Function<T, Maybe<S>> f);
 
-      @classmethod
-      def unit(cls, value: T) -> "Maybe[T]":
-          return cls(value)
+      boolean isPresent();
+      T getValue();
 
-      def bind(self, f: Callable[[T], "Maybe[S]"]) -> "Maybe[S]":
-          if self.value is None:
-              return Maybe(None)
-          return f(self.value)
+      // Just: Wert ist vorhanden
+      final class Just<T> implements Maybe<T> {
+          private final T value;
+
+          public <S> Maybe<S> bind(Function<T, Maybe<S>> f) {
+              return f.apply(this.value);
+          }
+          // ... weitere Methoden
+      }
+
+      // Nothing: Wert ist nicht vorhanden
+      final class Nothing<T> implements Maybe<T> {
+          public <S> Maybe<S> bind(Function<T, Maybe<S>> f) {
+              return new Nothing<>();
+          }
+          // ... weitere Methoden
+      }
+  }
   ```,
   caption: [Rudimentäre Implementierung der Maybe Monade],
 ) <maybe-monad>
-Diese Klasse implementiert beide Methoden einer Monade. Die Implementierung von `bind` als Methode eines Objektes ermöglicht die Nutzung der Maybe Monade durch das aneinander-ketten von `bind` aufrufen wie folgt:
+Dieses Interface implementiert beide Methoden einer Monade. Die Implementierung von `bind` als Methode eines Objektes ermöglicht die Nutzung der Maybe Monade durch das aneinander-ketten von `bind` aufrufen wie folgt:
 
-```py
-val = 4
-result = Maybe.unit(val)
-    .bind(lambda x: Maybe(x - 2))
-    .bind(lambda x: Maybe(str(x)))
-assert result.value == "2"
+```java
+int val = 4;
+Maybe<String> result = Maybe.unit(val)
+    .bind(x -> Maybe.unit(x - 2))
+    .bind(x -> Maybe.unit(String.valueOf(x)));
+assert result.getValue().equals("2");
 ```
-Diese Kette an Operationen verändert erst einen Integer, und konvertiert ihn dann in einen String. Diese Aufgabe ist trvial genug, dass auch ein rein prozedureller Ansatz ohne unvorhergesehene Fehler durchlaufen könnte. Dies ändert sich allerdings, wenn man die Aufgabe umdreht: Es soll zuerst ein String von stdout eingelesen werden, dann in einen Integer konvertiert und schlussendlich verarbeitet werden.
+Diese Kette an Operationen verändert erst einen Integer, und konvertiert ihn dann in einen String. Diese Aufgabe ist trvial genug, dass auch ein rein prozedureller Ansatz ohne unvorhergesehene Fehler durchlaufen könnte. Dies ändert sich allerdings, wenn man die Aufgabe umdreht: Es soll zuerst ein String von stdin eingelesen werden, dann in einen Integer konvertiert und schlussendlich verarbeitet werden.
 
-```py
-result = Maybe.unit(input(""))
-    .bind(lambda s: Maybe(int(s) if s.isdigit() else Maybe(None)))
-    .bind(lambda x: x - 2)
+```java
+Maybe<Integer> result = Maybe.unit(input.nextLine())
+    .bind(s -> s.matches("\\d+")
+        ? Maybe.unit(Integer.parseInt(s))
+        : Maybe.nothing())
+    .bind(x -> Maybe.unit(x - 2));
 ```
-Gibt der Nutzer eine valide Zahl ein (dies wird überprüft durch Pythons eingebaute Funktion `str.isdigit`), enthält `result.value` das korrekte Ergebnis als Integer. Tut der Nutzer dies allerdings nicht, ist der Wert von `result.value` `None`. In diesem Fall könnte man beispielsweise dem Benutzer eine Fehlermeldung anzeigen. Die hier gezeigte Implementierung ist der Übersichtlichkeit halber primitiv gehalten - in einer tatsächlichen Codebase sollte die Klasse weitere API Methoden enthalten (zum beispiel eine Funktion $"is_present":M chevron.l T chevron.r arrow "bool"$), um Entwicklern eine sinnvolle Nutzung der `Maybe` Klasse mit semantischer Relevanz zu ermöglichen.
+Gibt der Nutzer eine valide Zahl ein (dies wird überprüft durch die `matches` Methode mit einem regulären Ausdruck), enthält `result.getValue()` das korrekte Ergebnis als Integer. Tut der Nutzer dies allerdings nicht, gibt `result.isPresent()` `false` zurück. In diesem Fall könnte man beispielsweise dem Benutzer eine Fehlermeldung anzeigen. Die hier gezeigte Implementierung ist der Übersichtlichkeit halber rudimentär gehalten - in einer tatsächlichen Codebase sollte die Klasse weitere API Methoden enthalten (zum beispiel eine Funktion $"is_present":M chevron.l T chevron.r arrow "bool"$), um Entwicklern eine sinnvolle Nutzung der `Maybe` Klasse mit semantischer Relevanz zu ermöglichen.
 
 // === Funktorialität
 // #todo[Unsure]

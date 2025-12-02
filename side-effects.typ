@@ -4,13 +4,17 @@
 #emph[Side Effects] ist alles was eine Funktion macht, die nicht Teil ihres Outputs sind. Das Ändern von globalen Variablen, das Modifizieren von Objekten, das Schreiben in Dateien oder das Aufbauen von Netzwerkverbindungen sind alles Beispiele für Side Effects. Der Nachteil von Side Effects ist, dass sie den Zustand des Programms verändern können, was zu unerwartetem Verhalten führen kann. Dies erschwert das Testen und Debuggen von Code, da die Funktion nicht mehr isoliert betrachtet werden kann. Außerdem leidet die Transparenz des Codes, da der Leser nicht sofort erkennen kann, welche Teile des Codes den Zustand verändern. Der Leser muss den gesamten Kontext verstehen, um die Auswirkungen einer Funktion vollständig zu begreifen. Ein Beispiel für Side Effects ist eine Funktion, die eine globale Variable ändert:
 
 #figure(
-  ```python
-  counter = 0
-  def increment():
-      global counter
-      counter += 1
-  increment()
-  print(counter)  # Ausgabe: 1
+  ```java
+  static int counter = 0;
+
+  static void increment() {
+      counter += 1;
+  }
+
+  public static void main(String[] args) {
+      increment();
+      System.out.println(counter);  // Ausgabe: 1
+  }
   ```,
   caption: [Side Effects in #emph[prozedureller Programmierung]],
 ) <Side-Effect-OOP>
@@ -22,12 +26,15 @@ Die Funktion $f$ erhält als Parameter einen Wert $x$ vom Typ $A$ und gibt einen
 Dieser Determinismus erleichtert das Verständnis, Testen und die Wiederverwendbarkeit von Code erheblich. Ein Beispiel für eine reine Funktion ist:
 
 #figure(
-  ```python
-  def increment(x):
-      return x + 1
+  ```java
+  static int increment(int x) {
+      return x + 1;
+  }
 
-  counter = increment(0)
-  print(counter)  # Ausgabe: 1
+  public static void main(String[] args) {
+      int counter = increment(0);
+      System.out.println(counter);  // Ausgabe: 1
+  }
   ```,
   caption: [Pure Function in #emph[FP]],
 ) <Pure-Function-FP>
@@ -45,32 +52,35 @@ Unter #emph[Concurrency] versteht man die Fähigkeit eines Programms, mehrere Au
 Das Problem der #emph[Concurrency] soll anhand eines Beispiels verdeutlicht werden. Im folgenden Beispiel wird die Summe der Quadrate der Zahlen von $0$ bis $N-1$ im #emph[OOP] berechnet:
 
 #figure(
-  ```python
-  from threading import Thread
-  N = 100_000
+  ```java
+  class Acc {
+      long sum = 0;  // geteilter, veränderlicher Zustand
 
-  class Acc:
-      def __init__(self):
-          self.sum = 0  # geteilter, veränderlicher Zustand
+      void add(long v) {
+          // ohne Lock: race-conditions möglich
+          sum += v;
+      }
+  }
 
-      def add(self, v):
-          # ohne Lock: race-conditions möglich
-          self.sum += v
+  static void worker(Acc acc, int[] items) {
+      for (int i : items) {
+          acc.add((long) i * i);
+      }
+  }
 
-  def worker(acc, items):
-      for i in items:
-          acc.add(i * i)
+  public static void main(String[] args) throws InterruptedException {
+      int N = 100_000;
+      Acc acc = new Acc();
+      int[] items = IntStream.range(0, N).toArray();
+      int half = items.length / 2;
 
-  if __name__ == "__main__":
-      acc = Acc()
-      items = list(range(N))
-      half = len(items) // 2
-      t1 = Thread(target=worker, args=(acc, items[:half]))
-      t2 = Thread(target=worker, args=(acc, items[half:]))
-      t1.start(); t2.start()
-      t1.join(); t2.join()
-      print("OOP (ohne Lock) -> sum =", acc.sum)
-      # Erwartet: N*(N-1)*(2N-1)/6; ohne Lock meist kleiner/falsch
+      Thread t1 = new Thread(() -> worker(acc, Arrays.copyOfRange(items, 0, half)));
+      Thread t2 = new Thread(() -> worker(acc, Arrays.copyOfRange(items, half, items.length)));
+      t1.start(); t2.start();
+      t1.join(); t2.join();
+      System.out.println("OOP (ohne Lock) -> sum = " + acc.sum);
+      // Erwartet: N*(N-1)*(2N-1)/6; ohne Lock meist kleiner/falsch
+  }
   ```,
   caption: [Multithreading in #emph[OOP]],
 ) <Multithreading-OOP>
@@ -80,19 +90,23 @@ Im Beispiel aus @Multithreading-OOP wird eine Klasse `Acc` definiert, die einen 
 Im folgenden Beispiel wird dasselbe Problem in der #emph[funktionalen Programmierung] gelöst:
 
 #figure(
-  ```python
-  from concurrent.futures import ThreadPoolExecutor
-  N = 100_000
+  ```java
+  static long square(int x) {
+      return (long) x * x;  // reine Funktion, keine Seiteneffekte
+  }
 
-  def square(x):
-      return x * x  # reine Funktion, keine Seiteneffekte
+  public static void main(String[] args) {
+      int N = 100_000;
+      int[] items = IntStream.range(0, N).toArray();
 
-  if __name__ == "__main__":
-      items = list(range(N))
-      with ThreadPoolExecutor(max_workers=4) as ex:
-          results = list(ex.map(square, items))  # map-ähnliche FP-Semantik
-      total = sum(results)  # Aggregation erfolgt danach (im Hauptthread)
-      print("FP (no shared mutation) -> sum =", total)
+      // map-ähnliche FP-Semantik mit parallelStream
+      long total = Arrays.stream(items)
+          .parallel()
+          .mapToLong(Main::square)
+          .sum();  // Aggregation erfolgt danach (thread-safe)
+
+      System.out.println("FP (no shared mutation) -> sum = " + total);
+  }
   ```,
   caption: [Multithreading in #emph[FP]],
 ) <Multithreading-FP>
