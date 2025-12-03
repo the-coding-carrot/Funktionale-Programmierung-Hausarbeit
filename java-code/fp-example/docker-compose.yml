@@ -1,0 +1,17 @@
+services:
+  postgres:
+    image: postgres:17.4-bookworm
+    container_name: fp_demo_postgres
+    # restart: unless-stopped
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DATABASE: postgres
+    volumes:
+      - fp_demo_pgdata:/var/lib/postgresql/data
+      - ./src/main/docker/postgres.d/:/docker-entrypoint-initdb.d
+
+volumes:
+  fp_demo_pgdata:
