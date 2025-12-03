@@ -8,10 +8,7 @@ import io.vertx.mutiny.sqlclient.Tuple;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
-import io.vertx.core.Future;
-
 import java.util.Optional;
-import java.util.stream.Stream;
 
 /**
  * CSR Architecture - Here we communicate with the database
@@ -25,29 +22,41 @@ public class UserRepository {
 
     /**
      * Get a user with the passed id from the database
-     * <p>
-     * Uni is vertx's version of the IO monad
+     * I/O Operation at the edge of the application
+     *
+     * Uni is Vert.x's IO monad - represents async computation
+     * Returns Uni<Optional<User>> to handle absence without exceptions
      *
      * @param id The user ID to search for
-     * @return A Uni containing the User, or failure if not found
+     * @return A Uni containing Optional<User>
      */
     public Uni<Optional<User>> getUserById(int id) {
         return client
-                .preparedQuery("SELECT id, username FROM users WHERE id = $1")
+                .preparedQuery("SELECT id, username, password, age FROM users WHERE id = $1")
                 .execute(Tuple.of(id))
                 .map(rowSet -> {
                     if (rowSet.size() == 0) {
                         return Optional.empty();
                     }
                     Row row = rowSet.iterator().next();
-                    return Optional.of(new User(row.getInteger("id"), row.getString("username")));
+                    return Optional.of(new User(
+                        row.getInteger("id"),
+                        row.getString("username"),
+                        row.getString("password"),
+                        row.getInteger("age")
+                    ));
                 });
     }
     public Multi<User> getAllUsers() {
-        return client.preparedQuery("SELECT id, username FROM users")
+        return client.preparedQuery("SELECT id, username, password, age FROM users")
                      .execute()
                      .onItem()
                      .transformToMulti(rowSet -> Multi.createFrom().iterable(rowSet))
-                     .map(r -> new User(r.getInteger("id"), r.getString("username")));
+                     .map(r -> new User(
+                         r.getInteger("id"),
+                         r.getString("username"),
+                         r.getString("password"),
+                         r.getInteger("age")
+                     ));
     }
 }
