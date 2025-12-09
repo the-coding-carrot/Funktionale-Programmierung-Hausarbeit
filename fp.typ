@@ -88,7 +88,7 @@ Function<Integer, Integer> cube = cPower(3);
 assert square.apply(2) == power(2, 2);
 assert cube.apply(2) == power(2, 3);
 ```
-Diese Re-Interpretation einer Funktion mit mehreren Parametern als eine #emph[Higher-Order Function] nennt sich #emph[Currying]. Zu bemerken ist, dass die zurückgegebene Funktion den Kontext `exponent` beibehält, obwohl sie den Scope der Funktion `c_power` verlässt. Sie "captured" die Variable `exponent`. Capturing ist ein Weg, wie (immutable) State zwischen Funktionen weitergereicht werden kann. #todo[irgendwas zitieren für den Bullshit den ich da labere (should be like 90% correct)]
+Diese Re-Interpretation einer Funktion mit mehreren Parametern als eine #emph[Higher-Order Function] nennt sich #emph[Currying] @category_theory_milewski. Zu bemerken ist, dass die zurückgegebene Funktion den Kontext `exponent` beibehält, obwohl sie den Scope der Funktion `c_power` verlässt. Sie "captured" die Variable `exponent`. Capturing ist ein Weg, wie (immutable) State zwischen Funktionen weitergereicht werden kann. #todo[irgendwas zitieren für den Bullshit den ich da labere (should be like 90% correct)]
 
 
 == Monaden
@@ -96,7 +96,7 @@ Das Pattern der Monade ist der Weg, wie deterministisch mit Seiteneffekten umgeg
 
 === Definition
 
-Eine Monade kann definiert werden als ein Parameterisierter Datentyp $M chevron.l T chevron.r$, der Methoden mit den Folgenen Signaturen bereitstellt/*@notions_computations*/:
+Eine Monade kann definiert werden als ein Parameterisierter Datentyp $M chevron.l T chevron.r$, der Methoden mit den Folgenen Signaturen bereitstellt @notions_computations:
 
 
 #set math.equation(numbering: "(1)")
@@ -109,7 +109,7 @@ $ "bind": (M chevron.l A chevron.r,med med A -> M chevron.l B chevron.r) -> M ch
 // + `bind: (M<A>, A -> M<B>) -> M<B>`
 //
 
-Damit $M$ tatsächlich eine Monade ist, muss `unit` als Neutrales Element bezüglich der `bind` Operation agieren (3) `bind` assoziativ sein (4)/*@monad_intro_medium*/:
+Damit $M$ tatsächlich eine Monade ist, muss `unit` als Neutrales Element bezüglich der `bind` Operation agieren (3) `bind` assoziativ sein (4) @monad_intro_medium:
 
 $ "bind"("unit"(a), f) quad equiv quad f(a) \ "bind"(a, "unit") quad equiv quad a $ <identity>
 $ "bind"("bind"(a, f), g) equiv "bind"(a, "bind"(f(a), g)) $ <associativity>
@@ -131,8 +131,10 @@ Die Rolle der Methoden `unit` und `bind` können gut anhand des Beispiels der so
 
         <S> Maybe<S> bind(Function<T, Maybe<S>> f);
 
-        boolean isPresent();
-        T getValue() throws Exception;
+        // map: (Maybe<A>, A -> B) -> Maybe<B>
+        default <S> Maybe<S> map(Function<T, S> f) {
+            return bind(value -> Maybe.unit(f.apply(value)));
+        }
 
         // Implementierung der `Just` Variante
         final class Just<T> implements Maybe<T> {

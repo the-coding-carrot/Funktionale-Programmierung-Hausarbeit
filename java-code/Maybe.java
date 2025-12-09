@@ -2,7 +2,9 @@ import java.util.function.Function;
 
 public sealed interface Maybe<T> permits Maybe.Just, Maybe.Nothing {
 
-    // unit: T -> Maybe<T>
+    /**
+     * unit: T -> Maybe<T>
+     */
     static <T> Maybe<T> unit(T value) {
         if (value == null) {
             return new Nothing<>();
@@ -10,38 +12,40 @@ public sealed interface Maybe<T> permits Maybe.Just, Maybe.Nothing {
         return new Just<>(value);
     }
 
+    /**
+     * bind: (Maybe<A>, A -> Maybe<B>) -> Maybe<B>
+     */
+    <S> Maybe<S> bind(Function<T, Maybe<S>> f);
+
+    //
+    /**
+     * map: (Maybe<A>, A -> B) -> Maybe<B>
+     * 
+     * Derived from bind and unit
+     */
+    default <S> Maybe<S> map(Function<T, S> f) {
+        return bind(value -> Maybe.unit(f.apply(value)));
+    }
+
+    //////////////////// more utility methods ///////////////////////////////////
+
     // Factory method for explicit Nothing creation
     static <T> Maybe<T> nothing() {
         return new Nothing<>();
     }
 
-    // bind: (Maybe<A>, A -> Maybe<B>) -> Maybe<B>
-    <S> Maybe<S> bind(Function<T, Maybe<S>> f);
-
-    // map: (Maybe<A>, A -> B) -> Maybe<B>
-    // Convenience method for mapping without nesting Maybe
-    default <S> Maybe<S> map(Function<T, S> f) {
-        return bind(value -> Maybe.unit(f.apply(value)));
-    }
-
     // Provide a default value if Nothing
     default T orElse(T defaultValue) {
-        return isPresent() ? getValue() : defaultValue;
-    }
-
-    // Execute a function on the value if present, return Maybe for chaining
-    default Maybe<T> peek(java.util.function.Consumer<T> action) {
-        if (isPresent()) {
-            action.accept(getValue());
-        }
-        return this;
+        return this instanceof Maybe.Just<T> ? this.getValue() : defaultValue;
     }
 
     boolean isPresent();
 
     T getValue();
 
-    // Just represents a value that is present
+    /**
+     * The Just variant represents that a value is present
+     */
     final class Just<T> implements Maybe<T> {
         private final T value;
 
@@ -70,7 +74,7 @@ public sealed interface Maybe<T> permits Maybe.Just, Maybe.Nothing {
         }
     }
 
-    // Nothing represents the absence of a value
+    // The Nothing variant represents the absence of the value
     final class Nothing<T> implements Maybe<T> {
 
         private Nothing() {

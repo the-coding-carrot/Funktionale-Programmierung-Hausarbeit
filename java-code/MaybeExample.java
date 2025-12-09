@@ -2,29 +2,31 @@ import java.util.Scanner;
 
 public class MaybeExample {
 
+    private static Maybe<Integer> parseMaybe(String s) {
+        if (s.matches("\\d+")) {
+            return Maybe.unit(Integer.parseInt(s));
+        } else {
+            return Maybe.nothing();
+        }
+    }
+
     public static void main(String[] args) {
         // Example 1: Simple chaining with valid values
         int val = 4;
         Maybe<String> result = Maybe.unit(val)
-                .bind(x -> Maybe.unit(x - 2))
-                .bind(x -> Maybe.unit(String.valueOf(x)));
+        .bind(x -> Maybe.unit(x - 2))
+        .bind(x -> Maybe.unit(String.valueOf(x)));
 
         assert result.getValue().equals("2");
         System.out.println("Example 1 result: " + result);
 
         // Example 2: Handling user input that might be invalid
-        System.out.println("\nExample 2: Enter a number (or non-number to see error handling):");
+        System.out.println("\nExample 2: Enter a number:");
         Scanner scanner = new Scanner(System.in);
         String input = scanner.nextLine();
 
         Maybe<Integer> result2 = Maybe.unit(input)
-                .bind(s -> {
-                    if (s.matches("\\d+")) {
-                        return Maybe.unit(Integer.parseInt(s));
-                    } else {
-                        return Maybe.nothing();
-                    }
-                })
+                .bind(MaybeExample::parseMaybe)
                 .bind(x -> Maybe.unit(x - 2));
 
         if (result2.isPresent()) {
