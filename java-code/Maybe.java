@@ -18,6 +18,25 @@ public sealed interface Maybe<T> permits Maybe.Just, Maybe.Nothing {
     // bind: (Maybe<A>, A -> Maybe<B>) -> Maybe<B>
     <S> Maybe<S> bind(Function<T, Maybe<S>> f);
 
+    // map: (Maybe<A>, A -> B) -> Maybe<B>
+    // Convenience method for mapping without nesting Maybe
+    default <S> Maybe<S> map(Function<T, S> f) {
+        return bind(value -> Maybe.unit(f.apply(value)));
+    }
+
+    // Provide a default value if Nothing
+    default T orElse(T defaultValue) {
+        return isPresent() ? getValue() : defaultValue;
+    }
+
+    // Execute a function on the value if present, return Maybe for chaining
+    default Maybe<T> peek(java.util.function.Consumer<T> action) {
+        if (isPresent()) {
+            action.accept(getValue());
+        }
+        return this;
+    }
+
     boolean isPresent();
 
     T getValue();
