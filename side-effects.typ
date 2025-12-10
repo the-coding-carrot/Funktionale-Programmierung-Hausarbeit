@@ -1,7 +1,7 @@
 #import "util.typ": *
 
 = Side Effects <Side-Effects>
-#emph[Side Effects] ist alles was eine Funktion macht, die nicht Teil ihres Outputs sind. Das Ändern von globalen Variablen, das Modifizieren von Objekten, das Schreiben in Dateien oder das Aufbauen von Netzwerkverbindungen sind alles Beispiele für Side Effects. Der Nachteil von Side Effects ist, dass sie den Zustand des Programms verändern können, was zu unerwartetem Verhalten führen kann. Dies erschwert das Testen und Debuggen von Code, da die Funktion nicht mehr isoliert betrachtet werden kann. Außerdem leidet die Transparenz des Codes, da der Leser nicht sofort erkennen kann, welche Teile des Codes den Zustand verändern. Der Leser muss den gesamten Kontext verstehen, um die Auswirkungen einer Funktion vollständig zu begreifen. Ein Beispiel für Side Effects ist eine Funktion, die eine globale Variable ändert:
+#emph[Side Effects] ist alles was eine Funktion macht, die nicht Teil ihres Outputs sind. Das Ändern von globalen Variablen, das Modifizieren von Objekten, das Schreiben in Dateien oder das Aufbauen von Netzwerkverbindungen sind alles Beispiele für Side Effects. Auch das nutzen globaler Variablen als Input ist ein Side Effect. Der Nachteil von Side Effects ist, dass sie den Zustand des Programms verändern können, was zu unerwartetem Verhalten führen kann. Dies erschwert das Testen und Debuggen von Code, da die Funktion nicht mehr isoliert betrachtet werden kann. Außerdem leidet die Transparenz des Codes, da der Leser nicht sofort erkennen kann, welche Teile des Codes den Zustand verändern. Der Leser muss den gesamten Kontext verstehen, um die Auswirkungen einer Funktion vollständig zu begreifen. Ein Beispiel für Side Effects ist eine Funktion, die eine globale Variable ändert:
 
 #figure(
   ```java
@@ -19,7 +19,7 @@
   caption: [Side Effects in #emph[prozedureller Programmierung]],
 ) <Side-Effect-OOP>
 
-Funktionale Programmierung hingegen strebt danach, Side Effects zu minimieren oder klar vom Rest des Codes zu trennen, um die Vorteile reiner Funktionen zu nutzen. #emph[Pure Functions] sind Funktionen, die für dieselben Eingaben immer dieselben Ausgaben liefern und keine Side Effects haben:
+Funktionale Programmierung hingegen strebt danach, Side Effects zu minimieren und klar vom Rest des Codes zu trennen, um die Vorteile reiner Funktionen zu nutzen. #emph[Pure Functions] sind Funktionen, die für dieselben Eingaben immer dieselben Ausgaben liefern und keine Side Effects haben:
 $ f:A arrow B, x mapsto y $
 Die Funktion $f$ erhält als Parameter einen Wert $x$ vom Typ $A$ und gibt einen Wert $y$ vom Typ $B$ zurück. Dabei wird $x$ selbst nicht verändert, und es gibt keine anderen Auswirkungen auf den Zustand des Programms. Eine solche Funktion  folgt also der mengentheoretischen Definition einer Funktion als deterministische Abbildung der Menge $A$ in die Menge $B$.
 
@@ -112,3 +112,10 @@ Im folgenden Beispiel wird dasselbe Problem in der #emph[funktionalen Programmie
 ) <Multithreading-FP>
 
 Im Beispiel aus @Multithreading-FP wird die Funktion `square` definiert, die eine reine Funktion ist und keine Seiteneffekte hat. Mehrere Threads werden gestartet, die jeweils die Quadrate der Zahlen in einem bestimmten Bereich berechnen. Da es keinen gemeinsamen, veränderlichen Zustand gibt, treten keine Race-Conditions auf, und das Ergebnis ist konsistent.
+
+== Funktionale Programmierung und Pure Funktionale Programmierung
+Neben der #emph[Funktionalen Programmierung] gibt es auch die #emph[Pure Funktionale Programmierung]. Sie unterscheiden sich darin welche Art von Mutationen erlaubt sind.
+
+Bei der Funktionalen Programmierung sind globale Mutationen nicht erlaubt. Was innerhalb einer Funktion geschieht ist dabei irrelevant, solange ein globaler Zustand nicht verändert oder genutzt wird. Das bedeutet, dass Mutationen innerhalb eines lokalen Funktions-Scopes erlaubt sind.
+
+Bei der puren Funktionalen Programmierung hingegen sind selbst Zustandsänderungen innerhalb einer Funktion nicht erlaubt. Damit sind auch for-Schleifen nicht erlaubt, da diese die Iterationsvariable in jedem Schritt inkrementieren und damit den Zustand dieser Variable ändern.
