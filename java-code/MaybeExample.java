@@ -29,10 +29,14 @@ public class MaybeExample {
         Scanner scanner = new Scanner(System.in);
         String input = scanner.nextLine();
 
+        /////////////////////////////////////////////////////////////////////////////
+
         Maybe<Integer> result2 = Maybe.unit(input)
             .bind(MaybeExample::parseMaybe)
             .map(x -> x - 2)
-            .bind(x -> MaybeExample.divideBy(x, 1));
+            .bind(x -> MaybeExample.divideBy(x, 2));
+
+        /////////////////////////////////////////////////////////////////////////////
 
         if (result2.isPresent()) {
             System.out.println("Result: " + result2.getValue());
