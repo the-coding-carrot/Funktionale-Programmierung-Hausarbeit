@@ -1,5 +1,8 @@
 import java.util.Scanner;
 
+/**
+ * Example Usage for the custom {@link Maybe} monad.
+ */
 public class MaybeExample {
 
     /**

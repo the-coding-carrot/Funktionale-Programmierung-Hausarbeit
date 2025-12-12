@@ -1,30 +1,29 @@
 #import "util.typ": *
 
 = Fundamentale Konzepte des FP
-Funktionale Programmierung ist tief verwurzelt in den theoretischen Feldern der Kategorientheorie und des Lambda Kalküls. Auf diese theoretischen Grundlagen einzugehen, überschreitet den Umfang der Arbeit um ein Weites, weshalb wir nur die wichtigsten Begrifflichkeiten und Konzepte erörter werden.
+Funktionale Programmierung ist tief verwurzelt in den theoretischen Feldern der Kategorientheorie und des Lambda Kalküls. Auf diese theoretischen Grundlagen einzugehen überschreitet den Umfang der Arbeit um ein Weites, weshalb wir nur die wichtigsten Begrifflichkeiten und Konzepte erörtern werden.
 == Notation
 Im Folgenden werden wir Signaturen von Funktionen basierend auf ihren Datentypen in folgender Form schreiben:
 
 $ X arrow Y $
 
-Hierbei ist $X$ der Vektor der Datentypen der Parameter, und $Y$ der Datentyp des Rückgabewerts der Funktion. Um Funktionstypen in Java darzustellen, nutzen wir die generische Klasse `Function` aus dem `java.util.function` Paket:
+Hierbei ist $X$ der Vektor der Datentypen der Parameter, und $Y$ der Datentyp des Rückgabewerts der Funktion. Um Funktionstypen in Java darzustellen, nutzen wir das generische Interface `Function` aus dem `java.util.function` Paket:
 ```java
 Function<X, Y>
 ```
-
 
 Anzumerken ist, dass bei dieser Schreibweise vorausgesetzt wird, dass die beschriebene Funktion rein ist.
 // == Pure Functions
 // äh ich glaub Maxim du führst den Begriff einfach bei Side effects ein und gut ist #todo[Okidoki]
 == Higher-Order Functions
-Als "Higher-Order Function" (HoF) wird jede Funktion bezeichnet, die entweder durch eine andere Funktion parameterisiert wird, oder eine Funktion als Rückgabewert besitzt. In Java können wir dies durch funktionale Interfaces realisieren:
+Als "Higher-Order Function" (HoF) wird jede Funktion bezeichnet, die entweder durch eine andere Funktion parameterisiert wird, oder eine Funktion als Rückgabewert besitzt:
 
 ```java
 int applyFToX(int x, Function<Integer, Integer> f) {
     return f.apply(x);
 }
 ```
-Dies ist ein Beispiel für den Syntax einer #emph[HoF] in Java. Genutzt werden kann diese, indem man `applyFToX` den Bezeichner einer anderen Funktion übergibt:
+Dies ist ein Beispiel für den Syntax einer HoF in Java. Genutzt werden kann diese, indem man `applyFToX` den Bezeichner einer anderen Funktion übergibt:
 
 ```java
 int square(int x) {
@@ -35,7 +34,7 @@ assert applyFToX(4, this::square) == 16;
 ```
 
 === Anonymous Functions
-Besonders für kleine Funktionen, wie `square` im vorherigen Beispiel, kann es schnell verbos und unleserlich werden, jede dieser Funktionen seperat mit einem Bezeichner zu deklarieren. In den meisten Sprachen gibt es deshalb einen Weg, Funktionen ohne Bezeichner zu initialisieren, um sie direkt an HoFs zu übergeben. In Java geschieht dies durch den Lambda Syntax:
+Besonders für kleine Funktionen, wie `square` im vorherigen Beispiel, kann es schnell verbos und unleserlich werden, jede dieser Funktionen seperat mit einem Bezeichner zu deklarieren. In den meisten Sprachen gibt es deshalb einen Weg, Funktionen ohne Bezeichner zu initialisieren, um sie direkt an HoFs zu übergeben. In Java geschieht dies durch den folgenden Syntax:
 ```java
 (arg1, arg2, arg3, ...) -> <result>
 ```
@@ -86,6 +85,7 @@ Function<Integer, Integer> square = cPower(2);
 Function<Integer, Integer> cube = cPower(3);
 
 assert square.apply(2) == power(2, 2);
+assert square.apply(4) == power(4, 2)
 assert cube.apply(2) == power(2, 3);
 ```
 Diese Re-Interpretation einer Funktion mit mehreren Parametern als eine #emph[Higher-Order Function] nennt sich #emph[Currying] @category_theory_milewski. Zu bemerken ist, dass die zurückgegebene Funktion den Kontext `exponent` beibehält, obwohl sie den Scope der Funktion `c_power` verlässt. Sie "captured" die Variable `exponent`. Capturing ist ein Weg, wie (immutable) State zwischen Funktionen weitergereicht werden kann. #todo[irgendwas zitieren für den Bullshit den ich da labere (should be like 90% correct)]
@@ -119,7 +119,7 @@ $ "bind"("bind"(a, f), g) equiv "bind"(a, "bind"(f(a), g)) $ <associativity>
 
 === Maybe Monade
 
-Die Rolle der Methoden `unit` und `bind` können gut anhand des Beispiels der sogenannten "Maybe Monade" demonstriert werden. Diese abstrahiert den Side-Effect der möglichen Nicht-Existenz des enkapsulierten Wertes. Listing @maybe-monad ist eine beispielhafte, rudimentäre Implementierung der Maybe Monade. Diese benutzt das Sprach-Feature von "Sealed Interfaces", die seit Java 17 unterstützt werden. #todo[Anhang]
+Die Rolle der Methoden `unit` und `bind` können gut anhand des Beispiels der sogenannten "Maybe Monade" demonstriert werden. Diese abstrahiert den Side-Effect der möglichen Nicht-Existenz des enkapsulierten Wertes. Listing @maybe-monad ist eine beispielhafte, rudimentäre Implementierung der Maybe Monade. Diese benutzt das Sprach-Feature von "Sealed Interfaces", die seit Java 17 unterstützt werden#footnote[In der Arbeit zeigen wir nur einen Ausschnitt der Implementierung. Die gesamte Implementierung ist der Abgabe beigelegt.].
 
 #figure(
   ```java
@@ -143,7 +143,7 @@ Die Rolle der Methoden `unit` und `bind` können gut anhand des Beispiels der so
             public <S> Maybe<S> bind(Function<T, Maybe<S>> f) {
                 return f.apply(this.value);
             }
-            // weitere Methoden - s. Anhang
+            // weitere Methoden - s. beigelegten Code
         }
 
         // Implementierung der `Nothing` Variante
@@ -151,7 +151,7 @@ Die Rolle der Methoden `unit` und `bind` können gut anhand des Beispiels der so
             public <S> Maybe<S> bind(Function<T, Maybe<S>> f) {
                 return new Nothing<>();
             }
-            // weitere Methoden - s. Anhang
+            // weitere Methoden - s. beigelegten Code
         }
   }
   ```,
@@ -175,12 +175,31 @@ Maybe<Integer> result = Maybe.unit(input.nextLine())
         : Maybe.nothing())
     .bind(x -> Maybe.unit(x - 2));
 ```
-Gibt der Nutzer eine valide Zahl ein (dies wird überprüft durch die `matches` Methode mit einem regulären Ausdruck), enthält `result.getValue()` das korrekte Ergebnis als Integer. Tut der Nutzer dies allerdings nicht, gibt `result.isPresent()` `false` zurück. In diesem Fall könnte man beispielsweise dem Benutzer eine Fehlermeldung anzeigen. Die hier gezeigte Implementierung ist der Übersichtlichkeit halber rudimentär gehalten - in einer tatsächlichen Codebase sollte die Klasse weitere API Methoden enthalten (zum beispiel eine Funktion $"getValueOrDefault":M chevron.l T chevron.r arrow T$, die im Falle einer Nicht-Existenz einen Default Wert zurück gibt anstatt eine Exception zu werfen), um Entwicklern eine sinnvolle Nutzung der `Maybe` Klasse mit semantischer Relevanz zu ermöglichen.
+Gibt der Nutzer eine valide Zahl ein (dies wird überprüft durch die `matches` Methode mit einem regulären Ausdruck), enthält `result.getValue()` das korrekte Ergebnis als Integer. Tut der Nutzer dies allerdings nicht, gibt `result.isPresent()` `false` zurück. In diesem Fall könnte man beispielsweise dem Benutzer eine Fehlermeldung anzeigen. Die hier gezeigte Implementierung ist der Übersichtlichkeit halber rudimentär gehalten - in einer tatsächlichen Codebase sollte die Klasse weitere API Methoden enthalten (zum beispiel eine Funktion $"getOrDefault":M chevron.l T chevron.r arrow T$, die im Falle einer Nicht-Existenz einen Default Wert zurück gibt anstatt eine Exception zu werfen), um Entwicklern eine sinnvolle Nutzung der `Maybe` Klasse mit semantischer Relevanz zu ermöglichen.
 
 // === Funktorialität
 // #todo[Unsure]
 
-== Monaden in der Praxis
-Monadische Strukturen finden sich in beinahe allen modernen Programmiersprachen (außer halt Python lol). Die Maybe Monade beispielsweise manifestiert sich in Java als die Klasse `Optional`, und in Rust als der `Option` Datentyp. Ein weiteres Prominentes beispiel ist die sogenannte "IO Monade", die in JavaScript als die Klasse `Promise`, und in Java und Rust als Klasse bzw. der Datentyp `Future` realisiert ist. Die IO Monade enkapsuliert den Side-Effekt, dass ein Wert möglicherweise erst in der Zukunft existiert. Sie findet häufig Anwendung in Web Applikationen, wo Daten über ein Netzwerk geladen werden müssen.
+== Weitere Monaden
+Die Maybe Monade ist eine der simpelsten Monaden und wurde deshalb für unser Beispiel gewählt. Es gibt viele weitere gängige Monaden, die sich in realen Anwendungen wiederfinden. Einige davon sind in der folgenden Tabelle aufgelistet @wikipedia_monad_kinds:
+
+#figure(
+  table(
+    columns: 3,
+    [*Monade*], [*Zweck*], [*Beispiel*],
+    [IO Monade], [Zukünftige Existenz eines Wertes], [JavaScript `Promise`],
+    [Writer Monade], [Aggregieren von Outputs (z.B. Logs)], [],
+    [State Monade], [Enkapsulieren einer Funktion mit notwendigen Side Effects], [],
+    [List Monade], [Enkapsulieren von Operationen mit mehreren Ergebnissen], [Java: `Stream` API],
+
+    [Result Monade], [Error Handling ohne Exceptions], [Rust: `Result`],
+  ),
+  caption: [Bekannte Monaden und ihre Anwendungszwecke],
+)
+
+Selbstverständlich gibt es viele weitere bekannte Monaden, und jeder Typ kann monadisch gemacht werden indem er den oben genannten Bedingungen entspricht.
+
+// == Monaden in der Praxis
+// Monadische Strukturen finden sich in beinahe allen modernen Programmiersprachen. Die Maybe Monade beispielsweise manifestiert sich in Java als die Klasse `Optional`, und in Rust als der `Option` Datentyp. Ein weiteres Prominentes beispiel ist die sogenannte "IO Monade", die in JavaScript als die Klasse `Promise` realisiert ist#footnote[Javas Standard Library stellt einen analogen `Future` Datentyp bereit, dieser ist allerdings nicht monadisch.]. Die IO Monade enkapsuliert den Side-Effekt, dass ein Wert möglicherweise erst in der Zukunft existiert. Sie findet häufig Anwendung in Web Applikationen, wo Daten über ein Netzwerk geladen werden müssen.
 
 // Ebenfalls ein prominentes Beispiel für Monaden, die häufig Anwendung finden ist die List Monade. Sie enkapsuliert den Side-Effekt, dass dieselbe Operation auf mehreren Elementen gleichzeitig ausgeführt werden soll. Die List Monade findet sich beispielsweise in Java in Form der Streams API und in Rust in Form der Iterator API. In JavaScript ist bereits der Array Datentyp an sich eine Monade. oke keinen bock mal schauen das ding is für list monads müsste man fmap einführen wofür man die Funktorialität von Monaden definieren muss und dann muss man über das ganze theoretische Zeugs schreiben ich hasse wissenschaftliches Schreiben

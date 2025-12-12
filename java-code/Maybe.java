@@ -1,5 +1,10 @@
 import java.util.function.Function;
 
+
+/**
+ * Simple implementation of a Maybe Monad to go along with the Functional Programming
+ * SWE Presentation and Seminar thesis.
+ */
 public sealed interface Maybe<T> permits Maybe.Just, Maybe.Nothing {
 
     /**
@@ -20,7 +25,7 @@ public sealed interface Maybe<T> permits Maybe.Just, Maybe.Nothing {
     //
     /**
      * map: (Maybe<A>, A -> B) -> Maybe<B>
-     * 
+     *
      * Derived from bind and unit
      */
     default <S> Maybe<S> map(Function<T, S> f) {
