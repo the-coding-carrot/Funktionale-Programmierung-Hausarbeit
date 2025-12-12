@@ -131,11 +131,6 @@ Die Rolle der Methoden `unit` und `bind` können gut anhand des Beispiels der so
 
         <S> Maybe<S> bind(Function<T, Maybe<S>> f);
 
-        // map: (Maybe<A>, A -> B) -> Maybe<B>
-        default <S> Maybe<S> map(Function<T, S> f) {
-            return bind(value -> Maybe.unit(f.apply(value)));
-        }
-
         // Implementierung der `Just` Variante
         final class Just<T> implements Maybe<T> {
             private final T value;
