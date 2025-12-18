@@ -23,7 +23,7 @@ int applyFToX(int x, Function<Integer, Integer> f) {
     return f.apply(x);
 }
 ```
-Dies ist ein Beispiel für den Syntax einer HoF in Java. Genutzt werden kann diese, indem man `applyFToX` den Bezeichner einer anderen Funktion übergibt:
+Dies ist ein Beispiel für die Syntax einer HoF in Java. Genutzt werden kann diese, indem man `applyFToX` den Bezeichner einer anderen Funktion übergibt:
 
 ```java
 int square(int x) {
@@ -34,12 +34,12 @@ assert applyFToX(4, this::square) == 16;
 ```
 
 === Anonymous Functions
-Besonders für kleine Funktionen, wie `square` im vorherigen Beispiel, kann es schnell verbos und unleserlich werden, jede dieser Funktionen seperat mit einem Bezeichner zu deklarieren. In den meisten Sprachen gibt es deshalb einen Weg, Funktionen ohne Bezeichner zu initialisieren, um sie direkt an HoFs zu übergeben. In Java geschieht dies durch den folgenden Syntax:
+Besonders für kleine Funktionen, wie `square` im vorherigen Beispiel, kann es schnell umständlich und unleserlich werden, jede dieser Funktionen separat mit einem Bezeichner zu deklarieren. In den meisten Sprachen gibt es deshalb einen Weg, Funktionen ohne Bezeichner zu initialisieren, um sie direkt an HoFs zu übergeben. In Java geschieht dies durch den folgenden Syntax:
 ```java
 (arg1, arg2, arg3, ...) -> <result>
 ```
 
-Das obige Beispiel kann demnach bedeutend kompakter geschrieben werden, ohne die Funktion `square` seperat zu deklarieren:
+Das obige Beispiel kann demnach bedeutend kompakter geschrieben werden, ohne die Funktion `square` separat zu deklarieren:
 
 ```java
 applyFToX(4, x -> x * x);
@@ -68,7 +68,7 @@ int power(int base, int exponent) {
 ```
 // $ (A, B) -> C quad equiv quad A ->(B -> C) $
 
-Wollen wir nun eine Funktion mit dem selben Exponenten häufiger verwenden, können wir die Funktion `power` auch interpretieren als eine Funktion
+Wollen wir nun eine Funktion mit demselben Exponenten häufiger verwenden, können wir die Funktion `power` auch interpretieren als eine Funktion
 
 $ "int" -> ("int" -> "int"), $
 
@@ -88,15 +88,15 @@ assert square.apply(2) == power(2, 2);
 assert square.apply(4) == power(4, 2)
 assert cube.apply(2) == power(2, 3);
 ```
-Diese Re-Interpretation einer Funktion mit mehreren Parametern als eine #emph[Higher-Order Function] nennt sich #emph[Currying] @category_theory_milewski. Zu bemerken ist, dass die zurückgegebene Funktion den Kontext `exponent` beibehält, obwohl sie den Scope der Funktion `c_power` verlässt. Sie "captured" die Variable `exponent`. Capturing ist ein Weg, wie (immutable) State zwischen Funktionen weitergereicht werden kann. #todo[irgendwas zitieren für den Bullshit den ich da labere (should be like 90% correct)]
+Diese Re-Interpretation einer Funktion mit mehreren Parametern als eine #emph[Higher-Order Function] nennt sich #emph[Currying] @category_theory_milewski. Zu bemerken ist, dass die zurückgegebene Funktion den Kontext `exponent` beibehält, obwohl sie den Scope der Funktion `cPower` verlässt. Sie "captured" die Variable `exponent`. Capturing ist ein Weg, wie (immutable) State zwischen Funktionen weitergereicht werden kann. #todo[irgendwas zitieren für den Bullshit den ich da labere (should be like 90% correct)]
 
 
 == Monaden
-Das Pattern der Monade ist der Weg, wie deterministisch mit Seiteneffekten umgegangen werden kann. Monaden an sich sind ein Konzept aus der Kategorientheorie und entsprechend tief theoretisch verwurzelt, mit verschiedensten äquivalenten Definitionen. Wir wollen Monaden aber nur aus der Perspektive eines Software-Engineers betrachten, und werden deshalb theoretische Grundlagen auslassen. Erwähnt sei, dass folgende Definition einer Monade auf einem sogenanten #emph[Kleisli Tripel] basiert #todo[CITATION].
+Das Pattern der Monade ist der Weg, wie deterministisch mit Seiteneffekten umgegangen werden kann. Monaden an sich sind ein Konzept aus der Kategorientheorie und entsprechend tief theoretisch verwurzelt, mit verschiedensten äquivalenten Definitionen. Wir wollen Monaden aber nur aus der Perspektive eines Software-Engineers betrachten, und werden deshalb theoretische Grundlagen auslassen. Erwähnt sei, dass folgende Definition einer Monade auf einem sogenannten #emph[Kleisli Tripel] basiert #todo[CITATION].
 
 === Definition
 
-Eine Monade kann definiert werden als ein Parameterisierter Datentyp $M chevron.l T chevron.r$, der Methoden mit den Folgenen Signaturen bereitstellt @notions_computations:
+Eine Monade kann definiert werden als ein parametrisierter Datentyp $M chevron.l T chevron.r$, der Methoden mit den folgenden Signaturen bereitstellt @notions_computations:
 
 
 #set math.equation(numbering: "(1)")
@@ -161,7 +161,7 @@ Maybe<String> result = Maybe.unit(val)
     .bind(x -> Maybe.unit(String.valueOf(x)));
 assert result.getValue().equals("2");
 ```
-Diese Kette an Operationen verändert erst einen Integer, und konvertiert ihn dann in einen String. Diese Aufgabe ist trvial genug, dass auch ein rein prozedureller Ansatz ohne unvorhergesehene Fehler durchlaufen könnte. Dies ändert sich allerdings, wenn man die Aufgabe umdreht: Es soll zuerst ein String von stdin eingelesen werden, dann in einen Integer konvertiert und schlussendlich verarbeitet werden.
+Diese Kette an Operationen verändert erst einen Integer, und konvertiert ihn dann in einen String. Diese Aufgabe ist trivial genug, dass auch ein rein prozedureller Ansatz ohne unvorhergesehene Fehler durchlaufen könnte. Dies ändert sich allerdings, wenn man die Aufgabe umdreht: Es soll zuerst ein String von stdin eingelesen werden, dann in einen Integer konvertiert und schlussendlich verarbeitet werden.
 
 ```java
 Maybe<Integer> result = Maybe.unit(input.nextLine())
