@@ -1,7 +1,7 @@
 #import "util.typ": *
 
 = Side Effects <Side-Effects>
-#emph[Side Effects] ist alles was eine Funktion macht, die nicht Teil ihres Outputs sind. Das Ändern von globalen Variablen, das Modifizieren von Objekten, das Schreiben in Dateien oder das Aufbauen von Netzwerkverbindungen sind alles Beispiele für Side Effects. Auch das nutzen globaler Variablen als Input ist ein Side Effect. Der Nachteil von Side Effects ist, dass sie den Zustand des Programms verändern können, was zu unerwartetem Verhalten führen kann. Dies erschwert das Testen und Debuggen von Code, da die Funktion nicht mehr isoliert betrachtet werden kann. Außerdem leidet die Transparenz des Codes, da der Leser nicht sofort erkennen kann, welche Teile des Codes den Zustand verändern. Der Leser muss den gesamten Kontext verstehen, um die Auswirkungen einer Funktion vollständig zu begreifen. Ein Beispiel für Side Effects ist eine Funktion, die eine globale Variable ändert:
+#emph[Side Effects] ist alles was eine Funktion macht, die nicht Teil ihres Outputs sind @fp_basics[p.10]. Das Ändern von globalen Variablen, das Modifizieren von Objekten, das Schreiben in Dateien oder das Aufbauen von Netzwerkverbindungen sind alles Beispiele für Side Effects. Auch das nutzen globaler Variablen als Input ist ein Side Effect. Der Nachteil von Side Effects ist, dass sie den Zustand des Programms verändern können, was zu unerwartetem Verhalten führen kann @fp_basics[p.11]. Dies erschwert das Testen und Debuggen von Code, da die Funktion nicht mehr isoliert betrachtet werden kann. Außerdem leidet die Transparenz des Codes, da der Leser nicht sofort erkennen kann, welche Teile des Codes den Zustand verändern. Der Leser muss den gesamten Kontext verstehen, um die Auswirkungen einer Funktion vollständig zu begreifen. Ein Beispiel für Side Effects ist eine Funktion, die eine globale Variable ändert:
 
 #figure(
   ```java
@@ -19,9 +19,9 @@
   caption: [Side Effects in #emph[prozedureller Programmierung]],
 ) <Side-Effect-OOP>
 
-Funktionale Programmierung hingegen strebt danach, Side Effects zu minimieren und klar vom Rest des Codes zu trennen, um die Vorteile reiner Funktionen zu nutzen. #emph[Pure Functions] sind Funktionen, die für dieselben Eingaben immer dieselben Ausgaben liefern und keine Side Effects haben:
+Funktionale Programmierung hingegen strebt danach, Side Effects zu minimieren und klar vom Rest des Codes zu trennen, um die Vorteile reiner Funktionen zu nutzen. #emph[Pure Functions] sind Funktionen, die für dieselben Eingaben immer dieselben Ausgaben liefern und keine Side Effects haben @fp_basics[p.11]. Solche Funktionen sind #emph[referenziell transparent], man kann sie also vollständig durch ihren ```java return```-Wert ersetzen ohne das Verhalten des Programms zu ändern @fp_basics[p.15]. Eine #emph[Pure Function] wird folgendermaßen definiert:
 $ f:A arrow B, x mapsto y $
-Die Funktion $f$ erhält als Parameter einen Wert $x$ vom Typ $A$ und gibt einen Wert $y$ vom Typ $B$ zurück. Dabei wird $x$ selbst nicht verändert, und es gibt keine anderen Auswirkungen auf den Zustand des Programms. Eine solche Funktion  folgt also der mengentheoretischen Definition einer Funktion als deterministische Abbildung der Menge $A$ in die Menge $B$.
+Die Funktion $f$ erhält als Parameter einen Wert $x$ vom Typ $A$ und gibt einen Wert $y$ vom Typ $B$ zurück. Dabei wird $x$ selbst nicht verändert, und es gibt keine anderen Auswirkungen auf den Zustand des Programms. Eine solche Funktion folgt also der mengentheoretischen Definition einer Funktion als deterministische Abbildung der Menge $A$ in die Menge $B$.
 
 Dieser Determinismus erleichtert das Verständnis, Testen und die Wiederverwendbarkeit von Code erheblich. Ein Beispiel für eine reine Funktion ist:
 
