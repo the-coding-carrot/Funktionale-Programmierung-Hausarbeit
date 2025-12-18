@@ -12,6 +12,17 @@
   ],
   numbering: "1",
 )
+#show ref: it => {
+  let eq = math.equation
+  let el = it.element
+  // Skip all other references.
+  if el == none or el.func() != eq { return it }
+  // Override equation references.
+  link(el.location(), numbering(
+    el.numbering,
+    ..counter(eq).at(el.location())
+  ))
+}
 #set heading(numbering: "1.")
 #counter(page).update(1)
 #show ref.where(form: "normal"): set ref(supplement: x => {

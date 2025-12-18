@@ -1,7 +1,7 @@
 #import "util.typ": *
 
 = Fundamentale Konzepte des FP
-Funktionale Programmierung ist tief verwurzelt in den theoretischen Feldern der Kategorientheorie und des Lambda Kalküls. Auf diese theoretischen Grundlagen einzugehen überschreitet den Umfang der Arbeit um ein Weites, weshalb wir nur die wichtigsten Begrifflichkeiten und Konzepte erörtern werden.
+Funktionale Programmierung ist tief verwurzelt in den theoretischen Feldern der Kategorientheorie und des Lambda Kalküls. Auf diese theoretischen Grundlagen einzugehen, überschreitet den Umfang der Arbeit bei Weitem, weshalb wir nur die wichtigsten Begrifflichkeiten und Konzepte erörtern werden.
 == Notation
 Im Folgenden werden wir Signaturen von Funktionen basierend auf ihren Datentypen in folgender Form schreiben:
 
@@ -34,7 +34,7 @@ assert applyFToX(4, this::square) == 16;
 ```
 
 === Anonymous Functions
-Besonders für kleine Funktionen, wie `square` im vorherigen Beispiel, kann es schnell umständlich und unleserlich werden, jede dieser Funktionen separat mit einem Bezeichner zu deklarieren. In den meisten Sprachen gibt es deshalb einen Weg, Funktionen ohne Bezeichner zu initialisieren, um sie direkt an HoFs zu übergeben. In Java geschieht dies durch den folgenden Syntax:
+Besonders für kleine Funktionen, wie `square` im vorherigen Beispiel, kann es schnell umständlich und unleserlich werden, jede dieser Funktionen separat mit einem Bezeichner zu deklarieren. In den meisten Sprachen gibt es deshalb einen Weg, Funktionen ohne Bezeichner zu initialisieren, um sie direkt an HoFs zu übergeben. In Java geschieht dies durch die folgenden Syntax:
 ```java
 (arg1, arg2, arg3, ...) -> <result>
 ```
@@ -45,11 +45,11 @@ Das obige Beispiel kann demnach bedeutend kompakter geschrieben werden, ohne die
 applyFToX(4, x -> x * x);
 ```
 
-Anonyme Funktionen gibt es in beinahe allen modernen Programmiersprachen. In JavaScript beispielsweise ist der Syntax analog:
+Anonyme Funktionen gibt es in beinahe allen modernen Programmiersprachen. In JavaScript beispielsweise ist die Syntax analog:
 ```js
 (x) => x * x
 ```
-Python besitzt den sogenannten lambda-Syntax:
+Python besitzt die sogenannten Lambda-Syntax:
 
 ```py
 lambda x: x * x
@@ -60,7 +60,7 @@ Wie im vorherigen Kapitel erwähnt, können #emph[Higher-Order Functions] auch F
 
 $ ("int", "int") -> "int", $
 
-wo der Exponent ein weiterer Parameter ist:
+wobei der Exponent ein weiterer Parameter ist:
 ```java
 int power(int base, int exponent) {
     return (int) Math.pow(base, exponent);
@@ -88,7 +88,7 @@ assert square.apply(2) == power(2, 2);
 assert square.apply(4) == power(4, 2)
 assert cube.apply(2) == power(2, 3);
 ```
-Diese Re-Interpretation einer Funktion mit mehreren Parametern als eine #emph[Higher-Order Function] nennt sich #emph[Currying] @category_theory_milewski. Zu bemerken ist, dass die zurückgegebene Funktion den Kontext `exponent` beibehält, obwohl sie den Scope der Funktion `cPower` verlässt. Sie "captured" die Variable `exponent`. Capturing ist ein Weg, wie (immutable) State zwischen Funktionen weitergereicht werden kann. #todo[irgendwas zitieren für den Bullshit den ich da labere (should be like 90% correct)]
+Diese Re-Interpretation einer Funktion mit mehreren Parametern als eine #emph[Higher-Order Function] nennt sich #emph[Currying] @category_theory_milewski. Zu bemerken ist, dass die zurückgegebene Funktion den Kontext `exponent` beibehält, obwohl sie den Scope der Funktion `cPower` verlässt. Sie schließt die Variable `exponent` ein (Capturing). Capturing ist ein Weg, wie (immutable) State zwischen Funktionen weitergereicht werden kann. #todo[irgendwas zitieren für den Bullshit den ich da labere (should be like 90% correct)]
 
 
 == Monaden
@@ -109,7 +109,7 @@ $ "bind": (M chevron.l A chevron.r,med med A -> M chevron.l B chevron.r) -> M ch
 // + `bind: (M<A>, A -> M<B>) -> M<B>`
 //
 
-Damit $M$ tatsächlich eine Monade ist, muss `unit` als Neutrales Element bezüglich der `bind` Operation agieren (3) `bind` assoziativ sein (4) @monad_intro_medium:
+Damit $M$ tatsächlich eine Monade ist, muss `unit` als neutrales Element bezüglich der `bind` Operation agieren @identity und `bind` muss assoziativ sein @associativity @monad_intro_medium:
 
 $ "bind"("unit"(a), f) quad equiv quad f(a) \ "bind"(a, "unit") quad equiv quad a $ <identity>
 $ "bind"("bind"(a, f), g) equiv "bind"(a, "bind"(f(a), g)) $ <associativity>
@@ -119,7 +119,7 @@ $ "bind"("bind"(a, f), g) equiv "bind"(a, "bind"(f(a), g)) $ <associativity>
 
 === Maybe Monade
 
-Die Rolle der Methoden `unit` und `bind` können gut anhand des Beispiels der sogenannten "Maybe Monade" demonstriert werden. Diese abstrahiert den Side-Effect der möglichen Nicht-Existenz des enkapsulierten Wertes. Listing @maybe-monad ist eine beispielhafte, rudimentäre Implementierung der Maybe Monade. Diese benutzt das Sprach-Feature von "Sealed Interfaces", die seit Java 17 unterstützt werden#footnote[In der Arbeit zeigen wir nur einen Ausschnitt der Implementierung. Die gesamte Implementierung ist der Abgabe beigelegt.].
+Die Rolle der Methoden `unit` und `bind` kann gut anhand des Beispiels der sogenannten "Maybe Monade" demonstriert werden. Diese abstrahiert den Side-Effect der möglichen Nicht-Existenz des gekapselten Wertes. @maybe-monad ist eine beispielhafte, rudimentäre Implementierung der Maybe Monade. Diese benutzt das Sprach-Feature von "Sealed Interfaces", die seit Java 17 unterstützt werden#footnote[In der Arbeit zeigen wir nur einen Ausschnitt der Implementierung. Die gesamte Implementierung ist der Abgabe beigelegt.].
 
 #figure(
   ```java
@@ -170,7 +170,7 @@ Maybe<Integer> result = Maybe.unit(input.nextLine())
         : Maybe.nothing())
     .bind(x -> Maybe.unit(x - 2));
 ```
-Gibt der Nutzer eine valide Zahl ein (dies wird überprüft durch die `matches` Methode mit einem regulären Ausdruck), enthält `result.getValue()` das korrekte Ergebnis als Integer. Tut der Nutzer dies allerdings nicht, gibt `result.isPresent()` `false` zurück. In diesem Fall könnte man beispielsweise dem Benutzer eine Fehlermeldung anzeigen. Die hier gezeigte Implementierung ist der Übersichtlichkeit halber rudimentär gehalten - in einer tatsächlichen Codebase sollte die Klasse weitere API Methoden enthalten (zum beispiel eine Funktion $"getOrDefault":M chevron.l T chevron.r arrow T$, die im Falle einer Nicht-Existenz einen Default Wert zurück gibt anstatt eine Exception zu werfen), um Entwicklern eine sinnvolle Nutzung der `Maybe` Klasse mit semantischer Relevanz zu ermöglichen.
+Gibt der Nutzer eine valide Zahl ein (dies wird überprüft durch die `matches` Methode mit einem regulären Ausdruck), enthält `result.getValue()` das korrekte Ergebnis als Integer. Tut der Nutzer dies allerdings nicht, gibt `result.isPresent()` `false` zurück. In diesem Fall könnte man beispielsweise dem Benutzer eine Fehlermeldung anzeigen. Die hier gezeigte Implementierung ist der Übersichtlichkeit halber rudimentär gehalten - in einer tatsächlichen Codebase sollte die Klasse weitere API Methoden enthalten (zum Beispiel eine Funktion $"getOrDefault":M chevron.l T chevron.r arrow T$, die im Falle einer Nicht-Existenz einen Default Wert zurückgibt anstatt eine Exception zu werfen), um Entwicklern eine sinnvolle Nutzung der `Maybe` Klasse mit semantischer Relevanz zu ermöglichen.
 
 // === Funktorialität
 // #todo[Unsure]
@@ -192,7 +192,7 @@ Die Maybe Monade ist eine der simpelsten Monaden und wurde deshalb für unser Be
   caption: [Bekannte Monaden und ihre Anwendungszwecke],
 )
 
-Selbstverständlich gibt es viele weitere bekannte Monaden, und jeder Typ kann monadisch gemacht werden indem er den oben genannten Bedingungen entspricht.
+Selbstverständlich gibt es viele weitere bekannte Monaden, und jeder Typ kann monadisch gemacht werden, indem er den oben genannten Bedingungen entspricht.
 
 // == Monaden in der Praxis
 // Monadische Strukturen finden sich in beinahe allen modernen Programmiersprachen. Die Maybe Monade beispielsweise manifestiert sich in Java als die Klasse `Optional`, und in Rust als der `Option` Datentyp. Ein weiteres Prominentes beispiel ist die sogenannte "IO Monade", die in JavaScript als die Klasse `Promise` realisiert ist#footnote[Javas Standard Library stellt einen analogen `Future` Datentyp bereit, dieser ist allerdings nicht monadisch.]. Die IO Monade enkapsuliert den Side-Effekt, dass ein Wert möglicherweise erst in der Zukunft existiert. Sie findet häufig Anwendung in Web Applikationen, wo Daten über ein Netzwerk geladen werden müssen.
