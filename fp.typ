@@ -1,7 +1,7 @@
 #import "util.typ": *
 
-= Fundamentale Konzepte des FP
-Funktionale Programmierung ist tief verwurzelt in den theoretischen Feldern der Kategorientheorie und des Lambda Kalküls. Auf diese theoretischen Grundlagen einzugehen, überschreitet den Umfang der Arbeit bei Weitem, weshalb wir nur die wichtigsten Begrifflichkeiten und Konzepte erörtern werden.
+= Fundamentale Konzepte der Funktionalen Programmierung
+Die Funktionale Programmierung ist tief verwurzelt in den theoretischen Feldern der Kategorientheorie und des Lambda Kalküls. Auf diese theoretischen Grundlagen einzugehen, überschreitet den Umfang der Arbeit bei Weitem, weshalb wir nur die wichtigsten Begrifflichkeiten und Konzepte erörtern werden.
 == Notation
 Im Folgenden werden wir Signaturen von Funktionen basierend auf ihren Datentypen in folgender Form schreiben:
 
@@ -16,7 +16,7 @@ Anzumerken ist, dass bei dieser Schreibweise vorausgesetzt wird, dass die beschr
 // == Pure Functions
 // äh ich glaub Maxim du führst den Begriff einfach bei Side effects ein und gut ist #todo[Okidoki]
 == Higher-Order Functions
-Als "Higher-Order Function" (HoF) wird jede Funktion bezeichnet, die entweder durch eine andere Funktion parameterisiert wird, oder eine Funktion als Rückgabewert besitzt:
+Als Higher-Order Function (HoF) wird jede Funktion bezeichnet, die entweder durch eine andere Funktion parameterisiert wird, oder eine Funktion als Rückgabewert besitzt:
 
 ```java
 int applyFToX(int x, Function<Integer, Integer> f) {
@@ -33,7 +33,7 @@ int square(int x) {
 assert applyFToX(4, this::square) == 16;
 ```
 
-=== Anonymous Functions
+=== Anonyme Funktionen
 Besonders für kleine Funktionen, wie `square` im vorherigen Beispiel, kann es schnell umständlich und unleserlich werden, jede dieser Funktionen separat mit einem Bezeichner zu deklarieren. In den meisten Sprachen gibt es deshalb einen Weg, Funktionen ohne Bezeichner zu initialisieren, um sie direkt an HoFs zu übergeben. In Java geschieht dies durch die folgenden Syntax:
 ```java
 (arg1, arg2, arg3, ...) -> <result>
@@ -56,7 +56,7 @@ lambda x: x * x
 ```
 
 === Currying
-Wie im vorherigen Kapitel erwähnt, können #emph[Higher-Order Functions] auch Funktionen zurückgeben. Ein Anwendungsfall für dieses Pattern ist eine Art "Konstruktor" für Funktionen. Dies lässt sich gut aufzeigen am Beispiel der vorher eingeführten `square` Funktion: Es soll nun nicht nur quadriert werden, sondern der Exponent soll konfigurierbar sein. Die triviale Lösung hierfür ist eine zweistellige Funktion
+Wie im vorherigen Kapitel erwähnt, können Higher-Order Functions auch Funktionen zurückgeben. Ein Anwendungsfall für dieses Pattern ist eine Art "Konstruktor" für Funktionen. Dies lässt sich gut aufzeigen am Beispiel der vorher eingeführten `square` Funktion: Es soll nun nicht nur quadriert werden, sondern der Exponent soll konfigurierbar sein. Die triviale Lösung hierfür ist eine zweistellige Funktion
 
 $ ("int", "int") -> "int", $
 
@@ -88,11 +88,11 @@ assert square.apply(2) == power(2, 2);
 assert square.apply(4) == power(4, 2)
 assert cube.apply(2) == power(2, 3);
 ```
-Diese Re-Interpretation einer Funktion mit mehreren Parametern als eine #emph[Higher-Order Function] nennt sich #emph[Currying] @category_theory_milewski[ch. 9.2]. Zu bemerken ist, dass die zurückgegebene Funktion den Kontext `exponent` beibehält, obwohl sie den Scope der Funktion `cPower` verlässt. Sie schließt die Variable `exponent` ein (Capturing). Capturing ist ein Weg, wie (immutable) State zwischen Funktionen weitergereicht werden kann.
+Diese Re-Interpretation einer Funktion mit mehreren Parametern als eine Higher-Order Function nennt sich Currying @category_theory_milewski[ch. 9.2]. Zu bemerken ist, dass die zurückgegebene Funktion den Kontext `exponent` beibehält, obwohl sie den Scope der Funktion `cPower` verlässt. Sie schließt die Variable `exponent` ein (Capturing). Capturing ist ein Weg, wie (immutable) State zwischen Funktionen weitergereicht werden kann.
 
 
 == Monaden
-Das Pattern der Monade ist der Weg, wie deterministisch mit Seiteneffekten umgegangen werden kann. Monaden an sich sind ein Konzept aus der Kategorientheorie und entsprechend tief theoretisch verwurzelt, mit verschiedensten äquivalenten Definitionen. Wir wollen Monaden aber nur aus der Perspektive eines Software-Engineers betrachten, und werden deshalb theoretische Grundlagen auslassen. Erwähnt sei, dass folgende Definition einer Monade auf einem sogenannten #emph[Kleisli Tripel] basiert.
+Das Pattern der Monade ist der Weg, wie deterministisch mit Seiteneffekten umgegangen werden kann. Monaden an sich sind ein Konzept aus der Kategorientheorie und entsprechend tief theoretisch verwurzelt, mit verschiedensten äquivalenten Definitionen. Wir wollen Monaden aber nur aus der Perspektive eines Software-Engineers betrachten, und werden deshalb theoretische Grundlagen auslassen. Erwähnt sei, dass folgende Definition einer Monade auf einem sogenannten Kleisli Tripel basiert.
 
 === Definition
 
