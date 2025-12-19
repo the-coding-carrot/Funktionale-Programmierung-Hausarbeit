@@ -88,11 +88,11 @@ assert square.apply(2) == power(2, 2);
 assert square.apply(4) == power(4, 2)
 assert cube.apply(2) == power(2, 3);
 ```
-Diese Re-Interpretation einer Funktion mit mehreren Parametern als eine #emph[Higher-Order Function] nennt sich #emph[Currying] @category_theory_milewski. Zu bemerken ist, dass die zurückgegebene Funktion den Kontext `exponent` beibehält, obwohl sie den Scope der Funktion `cPower` verlässt. Sie schließt die Variable `exponent` ein (Capturing). Capturing ist ein Weg, wie (immutable) State zwischen Funktionen weitergereicht werden kann. #todo[irgendwas zitieren für den Bullshit den ich da labere (should be like 90% correct)]
+Diese Re-Interpretation einer Funktion mit mehreren Parametern als eine #emph[Higher-Order Function] nennt sich #emph[Currying] @category_theory_milewski[ch. 9.2]. Zu bemerken ist, dass die zurückgegebene Funktion den Kontext `exponent` beibehält, obwohl sie den Scope der Funktion `cPower` verlässt. Sie schließt die Variable `exponent` ein (Capturing). Capturing ist ein Weg, wie (immutable) State zwischen Funktionen weitergereicht werden kann.
 
 
 == Monaden
-Das Pattern der Monade ist der Weg, wie deterministisch mit Seiteneffekten umgegangen werden kann. Monaden an sich sind ein Konzept aus der Kategorientheorie und entsprechend tief theoretisch verwurzelt, mit verschiedensten äquivalenten Definitionen. Wir wollen Monaden aber nur aus der Perspektive eines Software-Engineers betrachten, und werden deshalb theoretische Grundlagen auslassen. Erwähnt sei, dass folgende Definition einer Monade auf einem sogenannten #emph[Kleisli Tripel] basiert #todo[CITATION].
+Das Pattern der Monade ist der Weg, wie deterministisch mit Seiteneffekten umgegangen werden kann. Monaden an sich sind ein Konzept aus der Kategorientheorie und entsprechend tief theoretisch verwurzelt, mit verschiedensten äquivalenten Definitionen. Wir wollen Monaden aber nur aus der Perspektive eines Software-Engineers betrachten, und werden deshalb theoretische Grundlagen auslassen. Erwähnt sei, dass folgende Definition einer Monade auf einem sogenannten #emph[Kleisli Tripel] basiert.
 
 === Definition
 
